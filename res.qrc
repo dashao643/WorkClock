@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>PicRes/clock1.ico</file>
+        <file>PicRes/settings.ico</file>
+        <file>PicRes/settings2.ico</file>
+        <file>style.qss</file>
+    </qresource>
+</RCC>
