@@ -12,6 +12,7 @@ CONFIG += c++17
 SOURCES += \
     appconfig.cpp \
     main.cpp \
+    recordmodel.cpp \
     settingdialog.cpp \
     timedialog.cpp \
     widget.cpp
@@ -19,6 +20,7 @@ SOURCES += \
 HEADERS += \
     appconfig.h \
     dataStructure.h \
+    recordmodel.h \
     settingdialog.h \
     timedialog.h \
     widget.h

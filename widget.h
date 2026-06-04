@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include "recordmodel.h"
 #include <QTimer>
 
 const QString DATABASE_FILE_NAME = "workClock.db";
@@ -25,23 +26,27 @@ public:
     const QString FILE_NAME = "EverydayRecord.txt";
 
     QSqlQuery *query_;
+    RecordModel *queryModel_;
+
     AppConfig *appConfig_;
 
     QSqlDatabase db_;
     QTimer *timer_ = nullptr;
     QString dateStr = "";
+    QVector<QString> stringVec;                 // 存放自定义字段的容器
     int curTimerSeconds_ = 0;
     bool isTiming_ = false;
-    double targetHour_ = 0;
+
+    Config_t config_;
 
     Widget(QWidget *parent = nullptr);
     ~Widget();
 
     void sqliteInit();
     void textFileRead();
-    void uiPage1Init();
-    void uiPage2Init();
-    void uiPage3Init();
+    void uiTimeShowInit();
+    void uiRecordRefresh();
+    void uiChartRefresh();
     void uiPage4Init();
 private slots:
     void on_btn_startStop_clicked();
@@ -54,9 +59,9 @@ private slots:
 private:
     void updateTimerState();
     void saveTimerRecord(int seconds);
-    QString getTodayTime();
+    void updateTodayTime();                                // 更新今日总时长显示，并判断是否完成目标
     QString ToHourMinute(int seconds);
-    void saveTimeTarget();                  // 今日目标是否完成，写入数据库
+    void saveTimeTarget(bool isComplete);                  // 今日目标是否完成，写入数据库
 
     Ui::Widget *ui;
 protected:
