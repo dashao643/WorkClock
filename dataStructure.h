@@ -19,7 +19,6 @@ typedef struct {
 
 typedef struct {
     bool hasImported;           // 文本文件是否被导入过
-    double targetHour;          // 每日目标时长
     QVector<TargetItem_t> targetVec;
 } Config_t;
 

@@ -10,12 +10,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // QFile styleFile(":style.qss");
+    QFile styleFile(":style.qss");
 
-    // if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
-    //     a.setStyleSheet(styleFile.readAll());
-    //     styleFile.close();
-    // }
+    if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+        a.setStyleSheet(styleFile.readAll());
+        styleFile.close();
+    }
 
     // QSharedMemory sharedMem("WorkClock_20260215_Unique_ID");
 

@@ -68,7 +68,6 @@ void Widget::sqliteInit()
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL,
             seconds INTEGER DEFAULT 0,
-            target INTEGER
         )
     )";
     if(!query_->exec(sql)){
@@ -198,7 +197,7 @@ void Widget::uiRecordRefresh()
     QString fieldStr = addFields.isEmpty() ? "" : "," + addFields.join(",");
 
     QString sql = QString(
-        "SELECT date, SUM(seconds) as seconds, MAX(target) as target%1 "
+        "SELECT date, SUM(seconds) as seconds"
         "FROM record GROUP BY date ORDER BY date asc"
     ).arg(fieldStr);
 

@@ -14,22 +14,13 @@ class AppConfig : public QObject
 public:
     explicit AppConfig(QObject *parent = nullptr);
 
-    //
-    // bool getTextFile() const;
-
-    // void setTimeTarget(double target);
-    // double getTimeTarget() const;
-
     Config_t readConfig();
     void saveConfig(const Config_t &config);
 
-    // Config_t getConfig() const;
-    // void setTextFile(bool isSaved);
 signals:
 
 private:
     QSettings setting_;
-    // Config_t config_;
 };
 
 #endif // APPCONFIG_H
