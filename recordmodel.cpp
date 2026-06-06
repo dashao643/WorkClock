@@ -39,7 +39,7 @@ QVariant RecordModel::data(const QModelIndex &index, int role) const
         int val = raw.toInt();
         if (val == 1)
             return QColor(45, 188, 175);   // green
-        return QColor(255, 140, 0);    // red
+        return QColor(255, 140, 0);        // red
     }
 
     if (role == Qt::TextAlignmentRole) {

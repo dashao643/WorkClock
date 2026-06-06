@@ -1,5 +1,10 @@
 <RCC>
     <qresource prefix="/">
+        <file>PicRes/arrowDown.ico</file>
+        <file>PicRes/arrowDown_h.ico</file>
+        <file>PicRes/arrowUp.ico</file>
+        <file>PicRes/arrowUp_h.ico</file>
+        <file>PicRes/clock1.ico</file>
         <file>PicRes/pause.png</file>
         <file>PicRes/pause_h.png</file>
         <file>PicRes/play2.ico</file>
@@ -10,5 +15,8 @@
         <file>PicRes/settings_h.ico</file>
         <file>PicRes/target.png</file>
         <file>style.qss</file>
+        <file>PicRes/cancel.png</file>
+        <file>PicRes/cancel_h.png</file>
+        <file>PicRes/target_n.png</file>
     </qresource>
 </RCC>

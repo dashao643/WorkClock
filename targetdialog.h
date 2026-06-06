@@ -1,41 +1,47 @@
-#ifndef SETTINGDIALOG_H
-#define SETTINGDIALOG_H
+#ifndef TARGETDIALOG_H
+#define TARGETDIALOG_H
 
-#include <dataStructure.h>
+// #include <dataStructure.h>
 
 #include <QDialog>
 #include <QListWidgetItem>
+#include <QSqlQuery>
 // #include <QSqlDatabase>
-// #include <QSqlQuery>
 
 namespace Ui {
-class SettingDialog;
+class TargetDialog;
 }
 
-class SettingDialog : public QDialog
+class TargetDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit SettingDialog(const Config_t &config, QWidget *parent = nullptr);
-    ~SettingDialog();
+    explicit TargetDialog(const QStringList &targetList, QSqlQuery *query, QWidget *parent = nullptr);
+    ~TargetDialog();
 
-    double getTargetHour() const;
-    QVector<TargetItem_t> getTargetVec() const;
+    QStringList getTargetList();
 
 signals:
-    void sgn_addField(QString fieldName);
-    void sgn_updateTarget(QString fieldName);
 
 private slots:
     void on_btn_addTarget_clicked();
-    void on_listWidget_itemClicked(QListWidgetItem *item);
+    void on_btn_changeTarget_clicked();
+    void on_btn_clockIn_clicked();
 
 private:
     // QSqlDatabase db_;
-    // QSqlQuery *query_;
 
-    Ui::SettingDialog *ui;
+    QSqlQuery *query_;
+    QString todayStr_;
+    QColor itemColor_;
+    QIcon itemIcon_;
+    QIcon itemNIcon_;
+    QVector<bool> targetFlagV_;
+
+    void listWidgetInit(const QStringList &targetList);
+
+    Ui::TargetDialog *ui;
 };
 
-#endif // SETTINGDIALOG_H
+#endif // TARGETDIALOG_H

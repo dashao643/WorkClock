@@ -13,7 +13,7 @@ SOURCES += \
     appconfig.cpp \
     main.cpp \
     recordmodel.cpp \
-    settingdialog.cpp \
+    targetdialog.cpp \
     timedialog.cpp \
     widget.cpp
 
@@ -21,12 +21,12 @@ HEADERS += \
     appconfig.h \
     dataStructure.h \
     recordmodel.h \
-    settingdialog.h \
+    targetdialog.h \
     timedialog.h \
     widget.h
 
 FORMS += \
-    settingdialog.ui \
+    targetdialog.ui \
     timedialog.ui \
     widget.ui
 
@@ -36,11 +36,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    res.qrc
+    resource.qrc
 
 RC_ICONS = PicRes/clock1.ico
 
 VERSION = 1.3.0
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
-
-# DEFINES += QT_NO_DEBUG_OUTPUT

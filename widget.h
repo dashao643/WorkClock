@@ -2,11 +2,11 @@
 #define WIDGET_H
 
 #include "appconfig.h"
+// #include "recordmodel.h"
 
 #include <QWidget>
 #include <QSqlDatabase>
 #include <QSqlQuery>
-#include "recordmodel.h"
 #include <QTimer>
 
 const QString DATABASE_FILE_NAME = "workClock.db";
@@ -25,16 +25,15 @@ public:
     const QString ICON_CLOCK1 = ":/PicRes/clock1.ico";
     const QString FILE_NAME = "EverydayRecord.txt";
 
-    QSqlQuery *query_;
-    RecordModel *queryModel_;
-
     AppConfig *appConfig_;
 
+    QSqlQuery *query_;
     QSqlDatabase db_;
     QTimer *timer_ = nullptr;
-    QString dateStr = "";
+    QString dateStr_ = "";
     QVector<QString> stringVec;                 // 存放自定义字段的容器
     int curTimerSeconds_ = 0;
+    int totalSeconds_ = 0;
     bool isTiming_ = false;
 
     Config_t config_;
@@ -45,23 +44,24 @@ public:
     void sqliteInit();
     void textFileRead();
     void uiTimeShowInit();
-    void uiRecordRefresh();
-    void uiChartRefresh();
-    void uiPage4Init();
+    void uiRecordInit();
+    void uiChartInit();
+    void uiToolInit();
 private slots:
     void on_btn_startStop_clicked();
     void on_btn_save_clicked();
     void on_btn_change_clicked();
     void on_btn_reset_clicked();
-    void on_btn_setting_clicked();
+    void on_btn_target_clicked();
+    void on_btn_toUpper_clicked();
+    void on_btn_toLower_clicked();
 
     void do_timerTimeout();
 private:
     void updateTimerState();
     void saveTimerRecord(int seconds);
-    void updateTodayTime();                                // 更新今日总时长显示，并判断是否完成目标
     QString ToHourMinute(int seconds);
-    void saveTimeTarget(bool isComplete);                  // 今日目标是否完成，写入数据库
+    void fillMissingDays();
 
     Ui::Widget *ui;
 protected:

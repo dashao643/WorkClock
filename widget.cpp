@@ -1,7 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include "timedialog.h"
-#include "settingdialog.h"
+#include "targetdialog.h"
 
 #include <QFile>
 #include <QDir>
@@ -9,7 +9,8 @@
 #include <QCloseEvent>
 #include <QSqlError>
 #include <QSqlRecord>
-#include <QScrollBar>
+#include <QSqlQueryModel>
+#include <QSqlTableModel>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -20,9 +21,9 @@ Widget::Widget(QWidget *parent)
     qDebug()<<this->width()<<" "<<this->height();
     this->setWindowTitle(QString("工作时钟-v%1").arg(APP_VERSION));
     this->setWindowIcon(QIcon(ICON_CLOCK1));
-    ui->tabWidget->setCurrentIndex(0);
+    ui->tabWidget->setCurrentIndex(TabPage_e::ClockPage);
 
-    queryModel_ = new RecordModel(this);
+    // queryModel_ = new RecordModel(this);
 
     appConfig_ = new AppConfig(this);
     config_ = appConfig_->readConfig();
@@ -31,15 +32,18 @@ Widget::Widget(QWidget *parent)
     timer_->setInterval(1000);
     connect(timer_, &QTimer::timeout, this, &Widget::do_timerTimeout);
 
-    QDate date = QDate::currentDate();
-    dateStr = date.toString("yyyy-MM-dd");
+    dateStr_ = QDate::currentDate().toString("yyyy-MM-dd");
 
     sqliteInit();
     textFileRead();
+
     uiTimeShowInit();
-    uiRecordRefresh();
-    uiChartRefresh();
-    uiPage4Init();
+    uiRecordInit();
+    uiChartInit();
+    uiToolInit();
+
+    ui->btn_startStop->setProperty("action", "stop");
+    ui->label_clock->setProperty("action", "stop");
 }
 
 Widget::~Widget()
@@ -62,12 +66,15 @@ void Widget::sqliteInit()
         return;
     }
     qDebug()<<"数据库打开或创建成功";
-    // 初始化数据库表格和字段 (编号/日期/秒数/目标完成情况)
+    // 初始化数据库表格和字段 (编号/日期/秒数/3个自定义目标)
     QString sql = R"(
         create table if not exists record (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL,
             seconds INTEGER DEFAULT 0,
+            target0 INTEGER,
+            target1 INTEGER,
+            target2 INTEGER
         )
     )";
     if(!query_->exec(sql)){
@@ -76,30 +83,9 @@ void Widget::sqliteInit()
         return;
     }
     qDebug()<<"数据库初始化成功";
-    // 读出数据库各自定义目标字段完成情况(从第5个字段开始读，暂时这么处理)
-    QString query = "select * from record";
-    queryModel_->setQuery(query);
-    int colCnt = queryModel_->columnCount();
-
-    if(config_.targetVec.size() != colCnt - 4){
-        QMessageBox::critical(this, "警告", "数据库字段数错误");
-        return;
-    }
-    QSqlRecord record = queryModel_->record();
-    for(int i = 4; i < colCnt; i++){
-        QString name = record.fieldName(i);
-        stringVec.push_back(name);
-        // 查询字段名对应今日完成情况
-        QString sql2 = QString("select %1 from record where date = '%2'").arg(name, dateStr);
-        if(!query_->exec(sql2)){
-            QString errorInfo = query_->lastError().text();
-            QMessageBox::critical(this, "警告", "数据库查询失败：\n"+ errorInfo);
-            return;
-        }
-        if(query_->first()){
-            config_.targetVec[i-4].isComplete = query_->value(name).toBool();
-            qDebug()<<query_->value(name).toBool();
-        }
+    // 如果文本文件已导入，在此处补充空缺天数
+    if(config_.hasImported){
+        fillMissingDays();
     }
 }
 
@@ -119,7 +105,13 @@ void Widget::textFileRead()
     }
     QString content = QString::fromUtf8(file.readAll());
     content = content.trimmed();
+
     QStringList stringList = content.split('\n', Qt::SkipEmptyParts);
+    if(stringList.isEmpty()) return;
+    QStringList lastRecord = stringList.last().split('=', Qt::SkipEmptyParts);
+    if(lastRecord.isEmpty()) return;
+    config_.lastSaveDate = QDate::fromString(lastRecord.at(0), "yyyy-MM-dd");
+    qDebug()<<"文本文件最近一条记录："<<lastRecord.at(0);
 
     // 数据库大量操作前开启事务
     if(!db_.transaction()){
@@ -131,7 +123,7 @@ void Widget::textFileRead()
     // 一条记录
     foreach(QString record, stringList){
         // 记录中的三个字段：日期、秒数、时长
-        QStringList field3 = record.split('=',Qt::SkipEmptyParts);
+        QStringList field3 = record.split('=', Qt::SkipEmptyParts);
 
         if (field3.size() < 2) {
             qDebug() << "格式错误：" << record;
@@ -168,8 +160,13 @@ void Widget::textFileRead()
         return;
     }
     QMessageBox::information(this, "提示", "文本数据导入数据库成功");
+
+    // 文本文件未导入过，根据文本文件的最后一条进行补充
+    fillMissingDays();
+
     // 只读取一次，后写入配置
     config_.hasImported = true;
+    appConfig_->saveConfig(config_);
 }
 
 void Widget::uiTimeShowInit()
@@ -184,39 +181,57 @@ void Widget::uiTimeShowInit()
     updateTimerState();
 
     /********************* 今日记录 *******************/
-    updateTodayTime();
+    // 聚合函数查询，此后维护totalSeconds_
+    QString sql = "select sum(seconds) from record where date = :curDate";
+
+    if(!query_->prepare(sql)){
+        ui->label_today->setText("今日记录获取失败");
+        return;
+    }
+    query_->bindValue(":curDate", dateStr_);
+    if(!query_->exec()){
+        ui->label_today->setText("今日记录获取失败");
+        return;
+    }
+    if(query_->next()){
+        totalSeconds_  = query_->value(0).toInt();
+    }
+    qDebug()<<"读取今日总时长："<<totalSeconds_;
+
+    ui->label_today->setText("今日时长：" + ToHourMinute(totalSeconds_));
 }
 
-// 使用QSqlTableModel 和 QSqlQueryModel 统计显示每日数据
-void Widget::uiRecordRefresh()
+// 表格显示每日数据，不显示今日
+void Widget::uiRecordInit()
 {
-    QStringList addFields;
-    foreach (QString field, stringVec) {
-        addFields << QString("MAX(%1) as %1").arg(field);
+    QSqlQueryModel *queryModel = new QSqlQueryModel(this);
+    // QSqlTableModel
+    int targetCnt = config_.targetNameList.size();
+
+    QString sql = "select date, sum(seconds)%1 from record group by date order by date asc";
+
+    QString addField = "";
+    for(int i = 0; i < targetCnt; i++){
+        addField = addField + ',' + QString("max(target%1)").arg(i);
     }
-    QString fieldStr = addFields.isEmpty() ? "" : "," + addFields.join(",");
-
-    QString sql = QString(
-        "SELECT date, SUM(seconds) as seconds"
-        "FROM record GROUP BY date ORDER BY date asc"
-    ).arg(fieldStr);
-
-    queryModel_->setQuery(sql);
-    if (queryModel_->lastError().isValid()) {
-        QMessageBox::critical(this, "警告", "记录显示失败：\n" + queryModel_->lastError().text());
+    // qDebug()<<targetCnt;
+    // qDebug()<<sql.arg(addField);
+    queryModel->setQuery(sql.arg(addField));
+    if (queryModel->lastError().isValid()) {
+        QMessageBox::critical(this, "警告", "记录显示失败：\n" + queryModel->lastError().text());
         return;
     }
 
-    ui->tableView->setModel(queryModel_);
+    ui->tableView->setModel(queryModel);
     ui->tableView->scrollToBottom();
 }
 
-void Widget::uiChartRefresh()
+void Widget::uiChartInit()
 {
-
+    // ui->tableView->currentIndex();
 }
 
-void Widget::uiPage4Init()
+void Widget::uiToolInit()
 {
 
 }
@@ -229,8 +244,7 @@ void Widget::on_btn_startStop_clicked()
 
 void Widget::on_btn_save_clicked()
 {
-    if (curTimerSeconds_ > 0)
-        saveTimerRecord(curTimerSeconds_);
+    saveTimerRecord(curTimerSeconds_);
 
     curTimerSeconds_ = 0;
     ui->label_clock->setText("00:00:00");
@@ -265,37 +279,13 @@ void Widget::on_btn_reset_clicked()
     }
 }
 
-void Widget::on_btn_setting_clicked()
+void Widget::on_btn_target_clicked()
 {
-    SettingDialog dialog(config_, this);
-
-    // 新字段写入数据库
-    connect(&dialog, &SettingDialog::sgn_addField, this, [=](QString fieldName){
-        QString addField = "alter table record add %1 text";
-        if(!query_->exec(addField.arg(fieldName))){
-            QMessageBox::critical(this, "警告", "字段添加失败：\n" + query_->lastError().text());
-        }
-        uiRecordRefresh();
-        qDebug()<<"字段添加成功";
-    });
-
-    connect(&dialog, &SettingDialog::sgn_updateTarget, this, [=](QString fieldName){
-        // 先插入一条1秒的记录,确保今日有记录
-        saveTimerRecord(1);
-        QString sql = "update record set %1 = 1 where date = '%2'";
-        if(!query_->exec(sql.arg(fieldName, dateStr))){
-            QMessageBox::critical(this, "警告", "目标完成情况保存失败：\n"+query_->lastError().text());
-        }
-        uiRecordRefresh();
-        qDebug()<<"目标完成情况保存成功";
-    });
+    TargetDialog dialog(config_.targetNameList, query_, this);
 
     dialog.exec();
 
-    config_.targetHour = dialog.getTargetHour();
-    config_.targetVec = dialog.getTargetVec();
-    // 修改了目标时长，更新数据库的完成状态
-    updateTodayTime();
+    config_.targetNameList = dialog.getTargetList();
 }
 
 void Widget::do_timerTimeout()
@@ -309,12 +299,20 @@ void Widget::updateTimerState()
 {
     if(isTiming_){
         timer_->start();
-        ui->btn_startStop->setText("暂停");
+        ui->btn_startStop->setProperty("action", "start");
+        ui->label_clock->setProperty("action", "start");
     }
     else{
         timer_->stop();
-        ui->btn_startStop->setText("开始");
+        ui->btn_startStop->setProperty("action", "stop");
+        ui->label_clock->setProperty("action", "stop");
     }
+    ui->btn_startStop->style()->unpolish(ui->btn_startStop);
+    ui->btn_startStop->style()->polish(ui->btn_startStop);
+
+    ui->label_clock->style()->unpolish(ui->label_clock);
+    ui->label_clock->style()->polish(ui->label_clock);
+
     // 正在计时，或者有计时，保存和重置按钮可点击，否则不可点击
     bool isEnabled = isTiming_ || (curTimerSeconds_ > 0);
     ui->btn_save->setEnabled(isEnabled);
@@ -324,49 +322,27 @@ void Widget::updateTimerState()
 void Widget::saveTimerRecord(int seconds)
 {
     if(seconds == 0) return;
+    if(seconds + totalSeconds_ < 0){
+        QMessageBox::critical(this, "提示", "数值过大，修改失败");
+        return;
+    }
 
-    QString sql = "insert into record (date, seconds) values(:date, :seconds)";
+    QString sql = "insert into record(date, seconds) values(:date, :seconds)";
     if(!query_->prepare(sql)){
         QMessageBox::critical(this, "警告", "记录保存失败：\n" + query_->lastError().text());
         return;
     }
-    query_->bindValue(":date", dateStr);
+    query_->bindValue(":date", dateStr_);
     query_->bindValue(":seconds", seconds);
     if(!query_->exec()){
         QMessageBox::critical(this, "警告", "记录保存失败：\n" + query_->lastError().text());
         return;
     }
+    totalSeconds_ += seconds;
     // 今日时长刷新显示
-    updateTodayTime();
-    // //显示打开期间最近一次的保存时间
+    ui->label_today->setText("今日时长：" + ToHourMinute(totalSeconds_));
+    // 显示最近一次的保存时间
     // showLatestClock();
-}
-
-void Widget::updateTodayTime()
-{
-    QString sql = "select seconds from record where date = :curDate";
-    if(!query_->prepare(sql)){
-        ui->label_today->setText("今日记录获取失败");
-    }
-    query_->bindValue(":curDate", dateStr);
-    if(!query_->exec()){
-        ui->label_today->setText("今日记录获取失败");
-    }
-    int totolSeconds = 0;
-
-    while(query_->next()){
-        totolSeconds += query_->value("seconds").toInt();
-    }
-    qDebug()<<totolSeconds;
-    if(totolSeconds < 0)
-        totolSeconds = 0;
-
-    // 判断今日时长是否完成，写入db
-    bool isComplete = totolSeconds > (config_.targetHour * 3600);
-    saveTimeTarget(isComplete);
-
-    ui->label_today->setText("今日时长：" + ToHourMinute(totolSeconds));
-    uiRecordRefresh();
 }
 
 QString Widget::ToHourMinute(int seconds)
@@ -376,32 +352,49 @@ QString Widget::ToHourMinute(int seconds)
     return hourMinute;
 }
 
-void Widget::saveTimeTarget(bool isComplete)
+void Widget::fillMissingDays()
 {
-    int val = isComplete;
-    // 先查询，若已经写入，则无需提示
-    QString select = "select target from record where date = '%1'";
-    if(!query_->exec(select.arg(dateStr))){
-        QMessageBox::critical(this, "警告", "数据库更新失败：\n"+ query_->lastError().text());
+    QDate today = QDate::currentDate();
+    QDate lastDate = config_.lastSaveDate;
+
+    // 今天已经保存过，不需要补
+    if (lastDate >= today) return;
+
+    int days = lastDate.daysTo(today);
+    qDebug() << "相差天数：" << days;
+
+    if(!db_.transaction()){
+        QString errorInfo = db_.lastError().text();
+        QMessageBox::critical(this, "警告", "补全天数过程中事务开启失败：\n"+ errorInfo);
         return;
     }
-    if(query_->first()){
-        if(query_->value("target").toInt() == val){
-            qDebug()<<"无需修改db";
+
+    // 从 lastDate 的后一天开始，补充到今天
+    for (int i = 1; i <= days; i++) {
+        QDate fillDate = lastDate.addDays(i);
+        QString dateStr = fillDate.toString("yyyy-MM-dd");
+
+        // 只填 date seconds默认为 0，target 默认为 NULL
+        QString sql = "insert into record (date) values (:date)";
+        if(!query_->prepare(sql)){
+            QString errorInfo = db_.lastError().text();
+            QMessageBox::critical(this, "警告", "补全天数过程中插入失败：\n"+ errorInfo);
+            return;
+        }
+        query_->addBindValue(dateStr);
+        if(!query_->exec()){
+            QString errorInfo = db_.lastError().text();
+            QMessageBox::critical(this, "警告", "补全天数过程中插入失败：\n"+ errorInfo);
             return;
         }
     }
-    QString sql = "update record set target = %1 where date = '%2'";
-    if(!query_->exec(sql.arg(val).arg(dateStr))){
-        QString errorInfo = query_->lastError().text();
-        QMessageBox::critical(this, "警告", "数据库更新失败：\n"+ errorInfo);
+    if(!db_.commit()){
+        QString errorInfo = db_.lastError().text();
+        QMessageBox::critical(this, "警告", "补全天数过程中事务提交失败：\n"+ errorInfo);
+        return;
     }
-    if(val == 1){
-        QMessageBox::information(this, "提示", "今日时长已达成！");
-    }
-    else if(val == 0){
-        QMessageBox::information(this, "提示", "目标时长已被修改，今日时长未达成");
-    }
+
+    config_.lastSaveDate = today;
 }
 
 void Widget::closeEvent(QCloseEvent *event)
@@ -431,4 +424,17 @@ void Widget::closeEvent(QCloseEvent *event)
     else if (res == QMessageBox::Discard)
         event->accept();
     appConfig_->saveConfig(config_);
+}
+
+void Widget::on_btn_toUpper_clicked()
+{
+    QString str = ui->lineEditToUpper->text().toUpper();
+    str.replace(" ", "_");
+    ui->lineEditToUpper->setText(str);
+}
+
+void Widget::on_btn_toLower_clicked()
+{
+    QString str = ui->lineEditRemove->text().toLower();
+    ui->lineEditRemove->setText(str);
 }

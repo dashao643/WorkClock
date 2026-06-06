@@ -2,8 +2,8 @@
 #define DATASTRUCTURE_H
 
 #include <QString>
-#include <QVector>
-#include <QSet>
+#include <QDate>
+// #include <QSet>
 
 typedef enum {
     ClockPage = 0,
@@ -13,20 +13,9 @@ typedef enum {
 } TabPage_e;
 
 typedef struct {
-    QString targetName;
-    bool isComplete;
-} TargetItem_t;
-
-typedef struct {
-    bool hasImported;           // 文本文件是否被导入过
-    QVector<TargetItem_t> targetVec;
+    bool hasImported;               // 文本文件是否被导入过
+    QDate lastSaveDate;             // 最近一次保存过记录的日期
+    QStringList targetNameList;     // 自定义目标的名称
 } Config_t;
-
-const QSet<QString> keywords = {
-    "select", "insert", "update", "delete", "from", "where", "order",
-    "group", "by", "having", "join", "table", "index", "trigger",
-    "view", "database", "alter", "drop", "create", "default",
-    "null", "not", "primary", "key", "unique", "check", "foreign"
-};
 
 #endif // DATASTRUCTURE_H

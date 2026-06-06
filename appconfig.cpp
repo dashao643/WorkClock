@@ -1,5 +1,7 @@
 #include "appconfig.h"
 
+#include <QDate>
+
 AppConfig::AppConfig(QObject *parent)
     : QObject{parent}
     , setting_(CONFIG_FILE_NAME, QSettings::IniFormat)
@@ -9,17 +11,23 @@ AppConfig::AppConfig(QObject *parent)
 Config_t AppConfig::readConfig()
 {
     Config_t config;
+    // 是否导入过文本文件
     config.hasImported = setting_.value("textFile/imported", false).toBool();
-    config.targetHour = setting_.value("target/time", 2.0).toDouble();
+    // 最近一次保存时间，默认为昨天
+    QString defaultDate = QDate::currentDate().addDays(-1).toString("yyyy-MM-dd");
+    QString dateStr = setting_.value("saveRecord/lastDate", defaultDate).toString();
+    config.lastSaveDate = QDate::fromString(dateStr, "yyyy-MM-dd");
+    qDebug()<<dateStr;
+    // 自定义保存项的数量
+    int targetCnt = setting_.value("target/count", 0).toInt();
 
-    int customCnt = setting_.value("target/customCnt", 0).toInt();
-    for(int i = 1; i <= customCnt; i++){
-        TargetItem_t item;
-        item.targetName = setting_.value(QString("target/custom%1").arg(i),
-                                         QString("目标%1").arg(i)).toString();
-        // 默认未完成，之后根据数据库再修改
-        item.isComplete = false;
-        config.targetVec.push_back(item);
+    if(targetCnt > 3) targetCnt = 3;
+    /// 根据数量读取名称
+    for(int i = 0; i < targetCnt; i++){
+        QString name = setting_.value(QString("target/name%1").arg(i),
+                                      QString("目标%1").arg(i+1)).toString();
+        config.targetNameList.push_back(name);
+        qDebug()<<name;
     }
 
     return config;
@@ -27,23 +35,14 @@ Config_t AppConfig::readConfig()
 
 void AppConfig::saveConfig(const Config_t &config)
 {
-    setting_.setValue("target/time", config.targetHour);
     setting_.setValue("textFile/imported", config.hasImported);
-    // 存储新增的自定义项的数量
-    setting_.setValue("target/customCnt", config.targetVec.size());
-    // 配置文件存储自定义目标项的文本名称，每日是否完成从db中读取
-    int i = 1;
-    foreach(TargetItem_t item, config.targetVec){
-        setting_.setValue(QString("target/custom%1").arg(i++), item.targetName);
+
+    QString dateStr = QDate::currentDate().toString("yyyy-MM-dd");
+    setting_.setValue("saveRecord/lastDate", dateStr);
+
+    int targetCnt = config.targetNameList.size();
+    setting_.setValue("target/count", targetCnt);
+    for(int i = 0; i < targetCnt; i++) {
+        setting_.setValue(QString("target/name%1").arg(i), config.targetNameList.at(i));
     }
 }
-
-// Config_t AppConfig::getConfig() const
-// {
-//     return config_;
-// }
-
-// void AppConfig::setTextFile(bool imported)
-// {
-//     config_.hasImported = imported;
-// }

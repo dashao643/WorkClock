@@ -10,20 +10,44 @@
 } */
 
 /********************* QWidget *********************/
-
+/********************* QDialog *********************/
+QDialog {
+  background-color: #FFF;
+}
+QDialog QPushButton{
+  min-width:60px;
+  min-height:25px;
+  background:#fff;
+  border:1px solid #999;
+  border-radius:4px;
+}
+QDialog QPushButton:hover{
+  background:#e8f4ff;
+}
+QDialog QPushButton:pressed{
+  background:#d8e4ef;
+}
 
 /********************* QMessageBox *********************/
 QMessageBox {
   background-color: #FFF;
 }
-/* QMessageBox QPushButton#okButton {
-  background-color: #290114;
-} */
-
+QMessageBox QPushButton{
+  min-width:60px;
+  min-height:25px;
+  background:#fff;
+  border:1px solid #999;
+  border-radius:4px;
+}
+QMessageBox QPushButton:hover{
+  background:#e8f4ff;
+}
+QMessageBox QPushButton:pressed{
+  background:#d8e4ef;
+}
 /********************* QPushButton *********************/
 /* border: width style color */
 QPushButton {
-  min-width: auto;
   font-size: 14px;
   border: 1px solid #89B4E8;
   border-radius: 4px;
@@ -42,22 +66,22 @@ QPushButton:disabled {
   border-color: #7878a4;
 }
 
-QPushButton#btn_startStop[action="false"] {
+QPushButton#btn_startStop[action="stop"] {
   border: none;
   background-color: transparent;
   image: url(:/PicRes/play2.ico);
 }
-QPushButton#btn_startStop[action="false"]:pressed {
+QPushButton#btn_startStop[action="stop"]:pressed {
   border: none;
   background-color: transparent;
   image: url(:/PicRes/play2_h.ico);
 }
-QPushButton#btn_startStop[action="true"] {
+QPushButton#btn_startStop[action="start"] {
   border: none;
   background-color: transparent;
   image: url(:/PicRes/pause.png);
 }
-QPushButton#btn_startStop[action="true"]:pressed {
+QPushButton#btn_startStop[action="start"]:pressed {
   border: none;
   background-color: transparent;
   image: url(:/PicRes/pause_h.png);
@@ -68,12 +92,42 @@ QPushButton#btn_save {
   background-color: transparent;
   image: url(:/PicRes/save.ico);
 }
-QPushButton#btn_save:pressed {
+/* QPushButton#btn_save:pressed {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/save.ico);
+} */
+QPushButton#btn_save:hover {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/save_h.ico);
+}
+QPushButton#btn_save:disabled {
   border: none;
   background-color: transparent;
   image: url(:/PicRes/save_h.ico);
 }
 
+QPushButton#btn_reset {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/cancel.png);
+}
+QPushButton#btn_reset:pressed {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/cancel.png);
+}
+QPushButton#btn_reset:hover {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/cancel_h.png);
+}
+QPushButton#btn_reset:disabled {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/cancel_h.png);
+}
 /********************* QRadioButton *********************/
 QRadioButton {
   background-color: transparent;
@@ -336,6 +390,38 @@ QLabel {
   color: #333;
   border-radius: 10px;
   background-color: transparent;
+}
+
+QLabel#label_today {
+  font-size: 14px;
+  color: #2556c8;
+  border-radius: 5px;
+  background-color: #93c0e4;
+}
+
+QLabel#label_clock[action="stop"] {
+  font-size: 48px;
+  font-weight: bold;
+  color: #2C3E50;
+}
+QLabel#label_clock[action="start"] {
+  font-size: 48px;
+  font-weight: bold;
+  color: #27ae60;
+}
+
+QLabel#label_date {
+  font-size: 24px;
+  color: #333;
+  border-radius: 5px;
+  background-color: transparent;
+}
+
+TimeDialog QLabel#label {
+  font-size: 10px;
+  color: #333;
+  border-radius: 1px;
+  background-color: #bccee2;
 }
 
 /********************* QProgressBar *********************/
