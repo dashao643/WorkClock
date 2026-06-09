@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>450</width>
     <height>480</height>
    </rect>
   </property>
@@ -16,8 +16,29 @@
   <layout class="QHBoxLayout" name="horizontalLayout_4">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="tabPosition">
+      <enum>QTabWidget::TabPosition::North</enum>
+     </property>
+     <property name="tabShape">
+      <enum>QTabWidget::TabShape::Rounded</enum>
+     </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
+     </property>
+     <property name="elideMode">
+      <enum>Qt::TextElideMode::ElideNone</enum>
+     </property>
+     <property name="usesScrollButtons">
+      <bool>true</bool>
+     </property>
+     <property name="documentMode">
+      <bool>false</bool>
+     </property>
+     <property name="movable">
+      <bool>false</bool>
+     </property>
+     <property name="tabBarAutoHide">
+      <bool>false</bool>
      </property>
      <widget class="QWidget" name="tabTime">
       <attribute name="title">
@@ -45,7 +66,11 @@
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true"/>
+             <string notr="true">QLabel#label_clock[action=&quot;stop&quot;] {
+  font-size: 48px;
+  font-weight: bold;
+  color: #2C3E50;
+}</string>
             </property>
             <property name="text">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt;&quot;&gt;00:00:00&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -247,7 +272,7 @@
                 <string>修改今日记录</string>
                </property>
                <property name="text">
-                <string>修改</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -309,7 +334,7 @@
                 <string>打卡今日目标</string>
                </property>
                <property name="text">
-                <string>打卡</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -330,8 +355,8 @@
         <widget class="QTableView" name="tableView">
          <property name="font">
           <font>
-           <family>Source Code Pro</family>
-           <pointsize>11</pointsize>
+           <family>Microsoft YaHei</family>
+           <pointsize>10</pointsize>
            <bold>false</bold>
           </font>
          </property>
@@ -395,32 +420,27 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>小写转大写</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <property name="leftMargin">
-           <number>3</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>3</number>
-          </property>
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QGridLayout" name="gridLayout_2">
           <property name="bottomMargin">
-           <number>0</number>
+           <number>5</number>
           </property>
-          <item>
-           <widget class="QLineEdit" name="lineEditToUpper"/>
+          <item row="0" column="0">
+           <widget class="QLineEdit" name="lineEditToUpper">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+           </widget>
           </item>
-          <item>
+          <item row="0" column="1">
            <widget class="QPushButton" name="btn_toUpper">
             <property name="minimumSize">
              <size>
               <width>70</width>
-              <height>0</height>
+              <height>25</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -430,40 +450,26 @@
              </size>
             </property>
             <property name="text">
-             <string>转换</string>
+             <string>转大写</string>
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>大写转小写</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_7">
-          <property name="leftMargin">
-           <number>3</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>3</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="lineEditRemove"/>
+          <item row="1" column="0">
+           <widget class="QLineEdit" name="lineEditRemove">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+           </widget>
           </item>
-          <item>
+          <item row="1" column="1">
            <widget class="QPushButton" name="btn_toLower">
             <property name="minimumSize">
              <size>
               <width>70</width>
-              <height>0</height>
+              <height>25</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -473,7 +479,7 @@
              </size>
             </property>
             <property name="text">
-             <string>转换</string>
+             <string>转小写</string>
             </property>
            </widget>
           </item>
@@ -481,7 +487,16 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextEdit" name="textEdit"/>
+        <widget class="QWidget" name="widget_6" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QTextEdit" name="textEdit"/>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -491,22 +506,6 @@
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>lineEditToUpper</sender>
-   <signal>returnPressed()</signal>
-   <receiver>btn_toUpper</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>196</x>
-     <y>94</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>409</x>
-     <y>94</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>lineEditRemove</sender>
    <signal>returnPressed()</signal>

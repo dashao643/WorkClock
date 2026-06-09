@@ -17,7 +17,6 @@ Config_t AppConfig::readConfig()
     QString defaultDate = QDate::currentDate().addDays(-1).toString("yyyy-MM-dd");
     QString dateStr = setting_.value("saveRecord/lastDate", defaultDate).toString();
     config.lastSaveDate = QDate::fromString(dateStr, "yyyy-MM-dd");
-    qDebug()<<dateStr;
     // 自定义保存项的数量
     int targetCnt = setting_.value("target/count", 0).toInt();
 
@@ -27,8 +26,9 @@ Config_t AppConfig::readConfig()
         QString name = setting_.value(QString("target/name%1").arg(i),
                                       QString("目标%1").arg(i+1)).toString();
         config.targetNameList.push_back(name);
-        qDebug()<<name;
     }
+    QString timeStr = setting_.value("saveRecord/lastTime", "").toString();
+    config.lastSaveTime = QTime::fromString(timeStr);
 
     return config;
 }
@@ -45,4 +45,7 @@ void AppConfig::saveConfig(const Config_t &config)
     for(int i = 0; i < targetCnt; i++) {
         setting_.setValue(QString("target/name%1").arg(i), config.targetNameList.at(i));
     }
+
+    QString timeStr = config.lastSaveTime.toString();
+    setting_.setValue("saveRecord/lastTime", timeStr);
 }

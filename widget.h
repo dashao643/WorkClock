@@ -2,7 +2,7 @@
 #define WIDGET_H
 
 #include "appconfig.h"
-// #include "recordmodel.h"
+#include "recordmodel.h"
 
 #include <QWidget>
 #include <QSqlDatabase>
@@ -26,12 +26,12 @@ public:
     const QString FILE_NAME = "EverydayRecord.txt";
 
     AppConfig *appConfig_;
+    RecordModel *recordModel_;
 
     QSqlQuery *query_;
     QSqlDatabase db_;
     QTimer *timer_ = nullptr;
     QString dateStr_ = "";
-    QVector<QString> stringVec;                 // 存放自定义字段的容器
     int curTimerSeconds_ = 0;
     int totalSeconds_ = 0;
     bool isTiming_ = false;
@@ -62,6 +62,8 @@ private:
     void saveTimerRecord(int seconds);
     QString ToHourMinute(int seconds);
     void fillMissingDays();
+    void updateLastSave();
+    void saveTempFile();
 
     Ui::Widget *ui;
 protected:

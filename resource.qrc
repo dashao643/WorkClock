@@ -15,8 +15,16 @@
         <file>PicRes/settings_h.ico</file>
         <file>PicRes/target.png</file>
         <file>style.qss</file>
-        <file>PicRes/cancel.png</file>
-        <file>PicRes/cancel_h.png</file>
         <file>PicRes/target_n.png</file>
+        <file>PicRes/reset.png</file>
+        <file>PicRes/reset_h.png</file>
+        <file>PicRes/reset_p.png</file>
+        <file>PicRes/check.png</file>
+        <file>PicRes/clockIn2.png</file>
+        <file>PicRes/clockIn2_h.png</file>
+        <file>PicRes/clockIn2_p.png</file>
+        <file>PicRes/edit.png</file>
+        <file>PicRes/edit_h.png</file>
+        <file>PicRes/edit_p.png</file>
     </qresource>
 </RCC>

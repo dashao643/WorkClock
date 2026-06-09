@@ -17,12 +17,12 @@ int main(int argc, char *argv[])
         styleFile.close();
     }
 
-    // QSharedMemory sharedMem("WorkClock_20260215_Unique_ID");
+    QSharedMemory sharedMem("WorkClock_20260609_Unique_ID");
 
-    // if (!sharedMem.create(1)) {
-    //     QMessageBox::information(nullptr, "提示", "程序已在运行中！");
-    //     return 0;
-    // }
+    if (!sharedMem.create(1)) {
+        QMessageBox::information(nullptr, "提示", "程序已在运行中！");
+        return 0;
+    }
 
     Widget w;
     w.show();

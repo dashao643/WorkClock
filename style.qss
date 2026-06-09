@@ -92,41 +92,67 @@ QPushButton#btn_save {
   background-color: transparent;
   image: url(:/PicRes/save.ico);
 }
-/* QPushButton#btn_save:pressed {
-  border: none;
-  background-color: transparent;
-  image: url(:/PicRes/save.ico);
-} */
 QPushButton#btn_save:hover {
-  border: none;
-  background-color: transparent;
   image: url(:/PicRes/save_h.ico);
 }
+QPushButton#btn_save:pressed {
+  image: url(:/PicRes/save.ico);
+}
 QPushButton#btn_save:disabled {
-  border: none;
-  background-color: transparent;
   image: url(:/PicRes/save_h.ico);
 }
 
 QPushButton#btn_reset {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/cancel.png);
-}
-QPushButton#btn_reset:pressed {
-  border: none;
-  background-color: transparent;
-  image: url(:/PicRes/cancel.png);
+  image: url(:/PicRes/reset.png);
 }
 QPushButton#btn_reset:hover {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/cancel_h.png);
+  image: url(:/PicRes/reset_h.png);
+}
+QPushButton#btn_reset:pressed {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/reset_p.png);
 }
 QPushButton#btn_reset:disabled {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/cancel_h.png);
+  image: url(:/PicRes/reset_p.png);
+}
+
+QPushButton#btn_change {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/edit.png);
+}
+QPushButton#btn_change:hover {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/edit_h.png);
+}
+QPushButton#btn_change:pressed {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/edit_p.png);
+}
+
+QPushButton#btn_target {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/clockIn2.png);
+}
+QPushButton#btn_target:hover {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/clockIn2_h.png);
+}
+QPushButton#btn_target:pressed {
+  border: none;
+  background-color: transparent;
+  image: url(:/PicRes/clockIn2_p.png);
 }
 /********************* QRadioButton *********************/
 QRadioButton {
@@ -262,44 +288,58 @@ QSpinBox::down-arrow:hover, QDoubleSpinBox::down-arrow:hover {
 }
 
 /********************* QScrollBar *********************/
-QScrollBar:vertical, QScrollBar:horizontal {
+QScrollBar:vertical {
   background-color: #f5f5f5;
-}
-
-QScrollBar::handle:vertical {
-  background-color: #4a9eff;
-  border-radius: 5px;
-  min-height: 30px;
   width: 8px;
-  margin: 2px;
+  margin: 0;
+  border: none;
 }
-
-QScrollBar::handle:horizontal {
-  background-color: #4a9eff;
-  border-radius: 5px;
-  min-width: 30px;
-  height: 8px;
-  margin: 2px;
+QScrollBar::handle:vertical {
+  background-color: #B8D8F8 ;
+  border-radius: 4px;
+  min-height: 30px;
 }
-
-QScrollBar::handle:vertical:hover, QScrollBar::handle:horizontal:hover {
-  background-color: #6bb3ff;
+QScrollBar::handle:vertical:hover {
+  background-color: #C8E0F8;
 }
-
-QScrollBar::handle:vertical:pressed, QScrollBar::handle:horizontal:pressed {
-  background-color: #2d7dd2;
+QScrollBar::handle:vertical:pressed {
+  background-color: #98C0F0;
 }
-
-/* 隐藏箭头按钮 */
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical,
-QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
-  width: 0;
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
   height: 0;
   background: none;
   border: none;
 }
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+  background: none;
+}
 
-/* 交汇角 */
+QScrollBar:horizontal {
+  background-color: #f5f5f5;
+  height: 8px;
+  margin: 0;
+  border: none;
+}
+QScrollBar::handle:horizontal {
+  background-color: #B8D8F8;
+  border-radius: 4px;
+  min-width: 30px;
+}
+QScrollBar::handle:horizontal:hover {
+  background-color: #C8E0F8;
+}
+QScrollBar::handle:horizontal:pressed {
+  background-color: #98C0F0;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+  width: 0;
+  background: none;
+  border: none;
+}
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+  background: none;
+}
+
 QAbstractScrollArea::corner {
   background-color: #f5f5f5;
 }
@@ -396,7 +436,7 @@ QLabel#label_today {
   font-size: 14px;
   color: #2556c8;
   border-radius: 5px;
-  background-color: #93c0e4;
+  background-color: #e9f3fb;
 }
 
 QLabel#label_clock[action="stop"] {
@@ -421,7 +461,7 @@ TimeDialog QLabel#label {
   font-size: 10px;
   color: #333;
   border-radius: 1px;
-  background-color: #bccee2;
+  background-color: #e9f3fb;
 }
 
 /********************* QProgressBar *********************/
@@ -468,4 +508,48 @@ QMenu::separator {
 QMenu:disabled {
   background-color: #CCC;
   color: #7878a4;
+}
+
+/********************* QTabWidget / QTabBar *********************/
+QTabWidget::pane {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+QTabBar::tab {
+  background-color: #F8F8F8;
+  color: #333;
+  border: 1px solid #cccccc;
+  padding: 4px 10px;
+  border-radius: 1px;
+}
+
+QTabBar::tab:hover {
+  background-color: #d6d6d6;
+  color: #2c3e50;
+}
+
+QTabBar::tab:selected {
+  background-color: #ffffff;
+  color: #333333;
+  border-top: 2px solid #4a9eff;
+  border-bottom: 1px solid #ffffff;
+}
+
+QTabBar::scroller {
+  width: 30px;
+}
+
+QTabBar QToolButton {
+  background-color: #e5e5e5;
+  color: #333;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  padding: 2px;
+}
+
+QTabBar QToolButton:hover {
+  background-color: #d6d6d6;
+  color: #2c3e50;
 }

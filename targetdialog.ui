@@ -85,6 +85,10 @@
         <property name="text">
          <string>打卡</string>
         </property>
+        <property name="icon">
+         <iconset resource="resource.qrc">
+          <normaloff>:/PicRes/check.png</normaloff>:/PicRes/check.png</iconset>
+        </property>
        </widget>
       </item>
      </layout>
@@ -104,6 +108,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

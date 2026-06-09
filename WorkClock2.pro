@@ -15,6 +15,7 @@ SOURCES += \
     recordmodel.cpp \
     targetdialog.cpp \
     timedialog.cpp \
+    tmessagebox.cpp \
     widget.cpp
 
 HEADERS += \
@@ -23,6 +24,7 @@ HEADERS += \
     recordmodel.h \
     targetdialog.h \
     timedialog.h \
+    tmessagebox.h \
     widget.h
 
 FORMS += \

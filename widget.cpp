@@ -2,6 +2,7 @@
 #include "ui_widget.h"
 #include "timedialog.h"
 #include "targetdialog.h"
+#include "tmessagebox.h"
 
 #include <QFile>
 #include <QDir>
@@ -17,16 +18,16 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    this->resize(400, 480);
-    qDebug()<<this->width()<<" "<<this->height();
+    this->resize(390, 480);
+    qDebug()<<"当前窗口大小："<<this->width()<<" "<<this->height();
     this->setWindowTitle(QString("工作时钟-v%1").arg(APP_VERSION));
     this->setWindowIcon(QIcon(ICON_CLOCK1));
     ui->tabWidget->setCurrentIndex(TabPage_e::ClockPage);
 
-    // queryModel_ = new RecordModel(this);
-
     appConfig_ = new AppConfig(this);
     config_ = appConfig_->readConfig();
+
+    recordModel_ = new RecordModel(this);
 
     timer_ = new QTimer(this);
     timer_->setInterval(1000);
@@ -204,36 +205,83 @@ void Widget::uiTimeShowInit()
 // 表格显示每日数据，不显示今日
 void Widget::uiRecordInit()
 {
-    QSqlQueryModel *queryModel = new QSqlQueryModel(this);
-    // QSqlTableModel
-    int targetCnt = config_.targetNameList.size();
+    QString sql = "select date, sum(seconds), sum(target0), sum(target1), sum(target2) "
+                  "from record group by date order by date asc";
 
-    QString sql = "select date, sum(seconds)%1 from record group by date order by date asc";
+    // qDebug()<<config_.targetNameList;
+    recordModel_->setTargetNames(config_.targetNameList);
+    recordModel_->setQuery(sql);
 
-    QString addField = "";
-    for(int i = 0; i < targetCnt; i++){
-        addField = addField + ',' + QString("max(target%1)").arg(i);
-    }
-    // qDebug()<<targetCnt;
-    // qDebug()<<sql.arg(addField);
-    queryModel->setQuery(sql.arg(addField));
-    if (queryModel->lastError().isValid()) {
-        QMessageBox::critical(this, "警告", "记录显示失败：\n" + queryModel->lastError().text());
+    if (recordModel_->lastError().isValid()) {
+        QMessageBox::critical(this, "警告", "记录表显示失败：\n" + recordModel_->lastError().text());
         return;
     }
 
-    ui->tableView->setModel(queryModel);
+    ui->tableView->setModel(recordModel_);
+    for (int i = 2; i < recordModel_->columnCount(); i++) {
+        ui->tableView->setItemDelegateForColumn(i, new IconDelegate(ui->tableView));
+    }
+
+    ui->tableView->resizeColumnsToContents();
     ui->tableView->scrollToBottom();
+    // 前两个字段固定显示
+    for (int i = 2; i < recordModel_->columnCount(); i++) {
+        ui->tableView->setColumnHidden(i, false);
+    }
+    // 隐藏未含有的目标项
+    for (int i = 2 + config_.targetNameList.count(); i < recordModel_->columnCount(); ++i) {
+        ui->tableView->setColumnHidden(i, true);
+    }
 }
 
 void Widget::uiChartInit()
 {
-    // ui->tableView->currentIndex();
+    ui->label_latest->setText("上次保存时间："+config_.lastSaveTime.toString());
+
+    // 移除最后一行（今日记录），不参与平均值计算
+    int rowCount = recordModel_->rowCount();
+    if (rowCount > 0)
+        recordModel_->removeRow(rowCount - 1);
+
+    // 计算过去N天（不含今日）的日均秒数
+    auto calcAvgSeconds = [this](int days) -> double {
+        QString sql = "select sum(seconds) from record "
+                      "where date < :today "
+                      "group by date order by date desc limit :limit";
+        if (!query_->prepare(sql))
+            return 0.0;
+        query_->bindValue(":today", dateStr_);
+        query_->bindValue(":limit", days);
+        if (!query_->exec())
+            return 0.0;
+
+        int totalSeconds = 0;
+        int count = 0;
+        while (query_->next()) {
+            totalSeconds += query_->value(0).toInt();
+            count++;
+        }
+        if (count == 0)
+            return 0.0;
+        return static_cast<double>(totalSeconds) / count;
+    };
+
+    int avg7 = static_cast<int>(calcAvgSeconds(7));
+    int avg30 = static_cast<int>(calcAvgSeconds(30));
+
+    ui->label_pastDay7->setText("过去七天平均：" + ToHourMinute(avg7));
+    ui->label_pastDay30->setText("过去三十天平均：" + ToHourMinute(avg30));
 }
 
 void Widget::uiToolInit()
 {
+    QFile file(QDir::currentPath() + "/temp.txt");
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        qDebug()<<"文件打开失败";
+        return;
+    }
 
+    ui->textEdit->setText(QString::fromUtf8(file.readAll()));
 }
 
 void Widget::on_btn_startStop_clicked()
@@ -251,6 +299,9 @@ void Widget::on_btn_save_clicked()
 
     isTiming_ = false;
     updateTimerState();
+
+    config_.lastSaveTime = QTime::currentTime();
+    ui->label_latest->setText("上次保存时间："+config_.lastSaveTime.toString());
 }
 
 void Widget::on_btn_change_clicked()
@@ -341,8 +392,6 @@ void Widget::saveTimerRecord(int seconds)
     totalSeconds_ += seconds;
     // 今日时长刷新显示
     ui->label_today->setText("今日时长：" + ToHourMinute(totalSeconds_));
-    // 显示最近一次的保存时间
-    // showLatestClock();
 }
 
 QString Widget::ToHourMinute(int seconds)
@@ -397,6 +446,24 @@ void Widget::fillMissingDays()
     config_.lastSaveDate = today;
 }
 
+void Widget::updateLastSave()
+{
+
+}
+
+void Widget::saveTempFile()
+{
+    QString string = ui->textEdit->toPlainText();
+    QFile file;
+    file.setFileName(QDir::currentPath() + "/temp.txt");
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+        qDebug()<<"文件打开失败";
+        return;
+    }
+    file.write(string.toUtf8());
+    file.close();
+}
+
 void Widget::closeEvent(QCloseEvent *event)
 {
     //判断是否有未保存的本次计时
@@ -404,26 +471,26 @@ void Widget::closeEvent(QCloseEvent *event)
     if (!hasUnsavedTime) {
         event->accept();
         appConfig_->saveConfig(config_);
+        saveTempFile();
         return;
     }
 
-    auto res = QMessageBox::question(this,"提示!",
-        "有未保存的计时，是否保存？",
-        QMessageBox::Save|QMessageBox::Discard|QMessageBox::Cancel,
-        QMessageBox::Save
-    );
-    // 取消关闭窗口
-    if(res == QMessageBox::Cancel){
-        event->ignore();
-        return;
-    }
-    else if (res == QMessageBox::Save) {
+    TMessageBox msg("有未保存的时长，是否保存？", true);
+    msg.exec();
+    if (msg.clickedButton() == msg.okButton()) {
         saveTimerRecord(curTimerSeconds_);
         event->accept();
     }
-    else if (res == QMessageBox::Discard)
+    else if (msg.clickedButton() == msg.discardButton()) {
         event->accept();
+    }
+    else if (msg.clickedButton() == msg.cancelButton()) {
+        event->ignore();
+        return;
+    }
+
     appConfig_->saveConfig(config_);
+    saveTempFile();
 }
 
 void Widget::on_btn_toUpper_clicked()

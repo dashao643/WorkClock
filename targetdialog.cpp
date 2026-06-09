@@ -1,5 +1,6 @@
 #include "targetdialog.h"
 #include "ui_targetdialog.h"
+#include "tmessagebox.h"
 
 #include <QDate>
 #include <QInputDialog>
@@ -95,10 +96,9 @@ void TargetDialog::on_btn_clockIn_clicked()
         return;
     }
 
-    auto res = QMessageBox::question(this, "提示", "今日要打卡此目标吗?",
-                                     QMessageBox::Save|QMessageBox::Cancel,
-                                     QMessageBox::Save);
-    if(res == QMessageBox::Save){
+    TMessageBox msg("今日要打卡此目标吗?", false);
+    msg.exec();
+    if (msg.clickedButton() == msg.okButton()) {
         QString sql = QString("insert into record(date, target%1) values('%2', 1)");
 
         if(!query_->exec(sql.arg(index).arg(todayStr_))){
