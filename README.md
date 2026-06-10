@@ -1,6 +1,6 @@
 # Qt时钟工具
 
-![](./screenshot/interface.png)
+<img src="./screenshot/interface.png" style="zoom:75%;" />
 
 ## 功能介绍
 一个基于Qt6开发的桌面时钟工具，通过手动的开启和关闭一个正向的计时器，
