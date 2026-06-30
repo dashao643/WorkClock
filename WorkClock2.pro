@@ -10,27 +10,27 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    appconfig.cpp \
-    main.cpp \
-    recordmodel.cpp \
-    targetdialog.cpp \
-    timedialog.cpp \
-    tmessagebox.cpp \
-    widget.cpp
+    src/appconfig.cpp \
+    src/main.cpp \
+    src/recordmodel.cpp \
+    src/targetdialog.cpp \
+    src/timedialog.cpp \
+    src/tmessagebox.cpp \
+    src/widget.cpp \
 
 HEADERS += \
-    appconfig.h \
-    dataStructure.h \
-    recordmodel.h \
-    targetdialog.h \
-    timedialog.h \
-    tmessagebox.h \
-    widget.h
+    src/appconfig.h \
+    src/dataStructure.h \
+    src/recordmodel.h \
+    src/targetdialog.h \
+    src/timedialog.h \
+    src/tmessagebox.h \
+    src/widget.h \
 
 FORMS += \
-    targetdialog.ui \
-    timedialog.ui \
-    widget.ui
+    src/targetdialog.ui \
+    src/timedialog.ui \
+    src/widget.ui \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
