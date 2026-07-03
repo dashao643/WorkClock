@@ -2,8 +2,8 @@
 #define RECORDMODEL_H
 
 #include <QSqlQueryModel>
-#include <QIcon>
 #include <QStyledItemDelegate>
+#include <QIcon>
 
 class RecordModel : public QSqlQueryModel
 {
@@ -16,11 +16,13 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+
+    static QString formatSeconds(int totalSeconds);
+
 private:
     QStringList targetNames_;
     QIcon clockInIcon_;
 
-    QString formatSeconds(int totalSeconds) const;
 };
 
 class IconDelegate : public QStyledItemDelegate

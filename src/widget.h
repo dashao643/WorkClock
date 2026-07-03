@@ -3,6 +3,7 @@
 
 #include "appconfig.h"
 #include "recordmodel.h"
+#include "recordchart.h"
 
 #include <QWidget>
 #include <QSqlDatabase>
@@ -27,6 +28,7 @@ public:
 
     AppConfig *appConfig_;
     RecordModel *recordModel_;
+    RecordChart *recordChart_;
 
     QSqlQuery *query_;
     QSqlDatabase db_;
@@ -42,11 +44,12 @@ public:
     ~Widget();
 
     void sqliteInit();
-    void textFileRead();
+    // void textFileRead();
     void uiTimeShowInit();
     void uiRecordInit();
     void uiChartInit();
     void uiToolInit();
+
 private slots:
     void on_btn_startStop_clicked();
     void on_btn_save_clicked();
@@ -60,7 +63,6 @@ private slots:
 private:
     void updateTimerState();
     void saveTimerRecord(int seconds);
-    QString ToHourMinute(int seconds);
     void fillMissingDays();
     void updateLastSave();
     void saveTempFile();

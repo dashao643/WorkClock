@@ -66,7 +66,7 @@ QVariant RecordModel::headerData(int section, Qt::Orientation orientation, int r
     return QSqlQueryModel::headerData(section, orientation, role);
 }
 
-QString RecordModel::formatSeconds(int totalSeconds) const
+QString RecordModel::formatSeconds(int totalSeconds)
 {
     QTime time = QTime(0, 0, 0).addSecs(totalSeconds);
     return QString("%1小时%2分钟").arg(time.hour()).arg(time.minute());

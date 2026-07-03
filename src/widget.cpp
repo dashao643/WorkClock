@@ -12,6 +12,7 @@
 #include <QSqlRecord>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
+#include <QScrollBar>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -19,6 +20,8 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
     this->resize(390, 480);
+
+    // this->resize(800, 800);
     qDebug()<<"当前窗口大小："<<this->width()<<" "<<this->height();
     this->setWindowTitle(QString("工作时钟-v%1").arg(APP_VERSION));
     this->setWindowIcon(QIcon(ICON_CLOCK1));
@@ -28,6 +31,7 @@ Widget::Widget(QWidget *parent)
     config_ = appConfig_->readConfig();
 
     recordModel_ = new RecordModel(this);
+    recordChart_ = new RecordChart(this);
 
     timer_ = new QTimer(this);
     timer_->setInterval(1000);
@@ -36,7 +40,6 @@ Widget::Widget(QWidget *parent)
     dateStr_ = QDate::currentDate().toString("yyyy-MM-dd");
 
     sqliteInit();
-    textFileRead();
 
     uiTimeShowInit();
     uiRecordInit();
@@ -84,91 +87,89 @@ void Widget::sqliteInit()
         return;
     }
     qDebug()<<"数据库初始化成功";
-    // 如果文本文件已导入，在此处补充空缺天数
-    if(config_.hasImported){
-        fillMissingDays();
-    }
-}
 
-// 读取出之前文本文件的记录
-void Widget::textFileRead()
-{
-    if(config_.hasImported){
-        qDebug()<<"文本文件已导入";
-        return;
-    }
-
-    QString testFilePath = QDir::currentPath() + "/EverydayRecord.txt";
-    QFile file(testFilePath);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        qDebug()<<"无文件记录";
-        return;
-    }
-    QString content = QString::fromUtf8(file.readAll());
-    content = content.trimmed();
-
-    QStringList stringList = content.split('\n', Qt::SkipEmptyParts);
-    if(stringList.isEmpty()) return;
-    QStringList lastRecord = stringList.last().split('=', Qt::SkipEmptyParts);
-    if(lastRecord.isEmpty()) return;
-    config_.lastSaveDate = QDate::fromString(lastRecord.at(0), "yyyy-MM-dd");
-    qDebug()<<"文本文件最近一条记录："<<lastRecord.at(0);
-
-    // 数据库大量操作前开启事务
-    if(!db_.transaction()){
-        QString errorInfo = db_.lastError().text();
-        QMessageBox::critical(this, "警告", "事务开启失败，文本文件未保存进db_：\n"+ errorInfo);
-        return;
-    }
-
-    // 一条记录
-    foreach(QString record, stringList){
-        // 记录中的三个字段：日期、秒数、时长
-        QStringList field3 = record.split('=', Qt::SkipEmptyParts);
-
-        if (field3.size() < 2) {
-            qDebug() << "格式错误：" << record;
-            continue;
-        }
-        // prepare中sql语句只能是一行
-        QString sql = "insert into record (date, seconds) values(:date, :seconds)";
-
-        bool ok = query_->prepare(sql);
-        if(!ok){
-            QString errorInfo = query_->lastError().text();
-            QMessageBox::critical(this, "警告", "数据库保存text文件数据失败：\n"+ errorInfo);
-            db_.rollback();
-            return;
-        }
-        query_->bindValue(":date", field3.at(0));
-        // 先取出秒数字符串
-        QString secStr = field3.at(1);
-        secStr.remove("秒");
-        int sec = secStr.toInt(&ok);
-
-        if (!ok) continue;
-
-        query_->bindValue(":seconds", sec);
-
-        if(!query_->exec()){
-            QMessageBox::critical(this, "警告", "数据库插入失败：\n" + query_->lastError().text());
-            db_.rollback();
-            return;
-        }
-    }
-    if(!db_.commit()){
-        QMessageBox::critical(this, "警告", "文本数据导入数据库失败：\n" + db_.lastError().text());
-        return;
-    }
-    QMessageBox::information(this, "提示", "文本数据导入数据库成功");
-
-    // 文本文件未导入过，根据文本文件的最后一条进行补充
     fillMissingDays();
-
-    // 只读取一次，后写入配置
-    config_.hasImported = true;
-    appConfig_->saveConfig(config_);
 }
+
+// // 读取出之前文本文件的记录
+// void Widget::textFileRead()
+// {
+//     if(config_.hasImported){
+//         qDebug()<<"文本文件已导入";
+//         return;
+//     }
+
+//     QString testFilePath = QDir::currentPath() + "/EverydayRecord.txt";
+//     QFile file(testFilePath);
+//     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+//         qDebug()<<"无文件记录";
+//         return;
+//     }
+//     QString content = QString::fromUtf8(file.readAll());
+//     content = content.trimmed();
+
+//     QStringList stringList = content.split('\n', Qt::SkipEmptyParts);
+//     if(stringList.isEmpty()) return;
+//     QStringList lastRecord = stringList.last().split('=', Qt::SkipEmptyParts);
+//     if(lastRecord.isEmpty()) return;
+//     config_.lastSaveDate = QDate::fromString(lastRecord.at(0), "yyyy-MM-dd");
+//     qDebug()<<"文本文件最近一条记录："<<lastRecord.at(0);
+
+//     // 数据库大量操作前开启事务
+//     if(!db_.transaction()){
+//         QString errorInfo = db_.lastError().text();
+//         QMessageBox::critical(this, "警告", "事务开启失败，文本文件未保存进db_：\n"+ errorInfo);
+//         return;
+//     }
+
+//     // 一条记录
+//     foreach(QString record, stringList){
+//         // 记录中的三个字段：日期、秒数、时长
+//         QStringList field3 = record.split('=', Qt::SkipEmptyParts);
+
+//         if (field3.size() < 2) {
+//             qDebug() << "格式错误：" << record;
+//             continue;
+//         }
+//         // prepare中sql语句只能是一行
+//         QString sql = "insert into record (date, seconds) values(:date, :seconds)";
+
+//         bool ok = query_->prepare(sql);
+//         if(!ok){
+//             QString errorInfo = query_->lastError().text();
+//             QMessageBox::critical(this, "警告", "数据库保存text文件数据失败：\n"+ errorInfo);
+//             db_.rollback();
+//             return;
+//         }
+//         query_->bindValue(":date", field3.at(0));
+//         // 先取出秒数字符串
+//         QString secStr = field3.at(1);
+//         secStr.remove("秒");
+//         int sec = secStr.toInt(&ok);
+
+//         if (!ok) continue;
+
+//         query_->bindValue(":seconds", sec);
+
+//         if(!query_->exec()){
+//             QMessageBox::critical(this, "警告", "数据库插入失败：\n" + query_->lastError().text());
+//             db_.rollback();
+//             return;
+//         }
+//     }
+//     if(!db_.commit()){
+//         QMessageBox::critical(this, "警告", "文本数据导入数据库失败：\n" + db_.lastError().text());
+//         return;
+//     }
+//     QMessageBox::information(this, "提示", "文本数据导入数据库成功");
+
+//     // 文本文件未导入过，根据文本文件的最后一条进行补充
+//     fillMissingDays();
+
+//     // 只读取一次，后写入配置
+//     config_.hasImported = true;
+//     appConfig_->saveConfig(config_);
+// }
 
 void Widget::uiTimeShowInit()
 {
@@ -199,7 +200,7 @@ void Widget::uiTimeShowInit()
     }
     qDebug()<<"读取今日总时长："<<totalSeconds_;
 
-    ui->label_today->setText("今日时长：" + ToHourMinute(totalSeconds_));
+    ui->label_today->setText("今日时长：" + RecordModel::formatSeconds(totalSeconds_));
 }
 
 // 表格显示每日数据，不显示今日
@@ -236,41 +237,22 @@ void Widget::uiRecordInit()
 
 void Widget::uiChartInit()
 {
-    ui->label_latest->setText("上次保存时间："+config_.lastSaveTime.toString());
+    QChart *chart = new QChart();
+    recordChart_->chartInit(*recordModel_, *chart);
 
-    // 移除最后一行（今日记录），不参与平均值计算
-    int rowCount = recordModel_->rowCount();
-    if (rowCount > 0)
-        recordModel_->removeRow(rowCount - 1);
+    ui->chartView->setChart(chart);
+    ui->chartView->setRenderHint(QPainter::Antialiasing);
 
-    // 计算过去N天（不含今日）的日均秒数
-    auto calcAvgSeconds = [this](int days) -> double {
-        QString sql = "select sum(seconds) from record "
-                      "where date < :today "
-                      "group by date order by date desc limit :limit";
-        if (!query_->prepare(sql))
-            return 0.0;
-        query_->bindValue(":today", dateStr_);
-        query_->bindValue(":limit", days);
-        if (!query_->exec())
-            return 0.0;
+    // 等 chart 真正布局完成后再滚动到底部 + 添加时长标签
+    connect(chart, &QChart::plotAreaChanged, this, [this, chart](const QRectF &area) {
+        if (area.isEmpty())
+            return;
+        QScrollBar *scrollBar = ui->chartView->verticalScrollBar();
+        scrollBar->setValue(scrollBar->maximum());
+        recordChart_->addBarLabels(*chart);
+    }, Qt::SingleShotConnection);
 
-        int totalSeconds = 0;
-        int count = 0;
-        while (query_->next()) {
-            totalSeconds += query_->value(0).toInt();
-            count++;
-        }
-        if (count == 0)
-            return 0.0;
-        return static_cast<double>(totalSeconds) / count;
-    };
-
-    int avg7 = static_cast<int>(calcAvgSeconds(7));
-    int avg30 = static_cast<int>(calcAvgSeconds(30));
-
-    ui->label_pastDay7->setText("过去七天平均：" + ToHourMinute(avg7));
-    ui->label_pastDay30->setText("过去三十天平均：" + ToHourMinute(avg30));
+    ui->label_latest->setText("上次暂停/保存时间："+config_.lastSaveTime.toString());
 }
 
 void Widget::uiToolInit()
@@ -288,6 +270,10 @@ void Widget::on_btn_startStop_clicked()
 {
     isTiming_ = !isTiming_;
     updateTimerState();
+
+    if(!isTiming_){
+        updateLastSave();
+    }
 }
 
 void Widget::on_btn_save_clicked()
@@ -301,7 +287,7 @@ void Widget::on_btn_save_clicked()
     updateTimerState();
 
     config_.lastSaveTime = QTime::currentTime();
-    ui->label_latest->setText("上次保存时间："+config_.lastSaveTime.toString());
+    ui->label_latest->setText("上次暂停/保存时间："+config_.lastSaveTime.toString());
 }
 
 void Widget::on_btn_change_clicked()
@@ -391,14 +377,7 @@ void Widget::saveTimerRecord(int seconds)
     }
     totalSeconds_ += seconds;
     // 今日时长刷新显示
-    ui->label_today->setText("今日时长：" + ToHourMinute(totalSeconds_));
-}
-
-QString Widget::ToHourMinute(int seconds)
-{
-    QTime time = QTime(0,0,0).addSecs(seconds);
-    QString hourMinute = QString("%1小时%2分钟").arg(time.hour()).arg(time.minute());
-    return hourMinute;
+    ui->label_today->setText("今日时长：" + RecordModel::formatSeconds(totalSeconds_));
 }
 
 void Widget::fillMissingDays()
@@ -406,8 +385,10 @@ void Widget::fillMissingDays()
     QDate today = QDate::currentDate();
     QDate lastDate = config_.lastSaveDate;
 
+    qDebug()<<"最近保存日期:" << today;
+    qDebug()<<"今日日期:" << lastDate;
     // 今天已经保存过，不需要补
-    if (lastDate >= today) return;
+    if (lastDate == today) return;
 
     int days = lastDate.daysTo(today);
     qDebug() << "相差天数：" << days;
@@ -448,7 +429,8 @@ void Widget::fillMissingDays()
 
 void Widget::updateLastSave()
 {
-
+    config_.lastSaveTime = QTime::currentTime();
+    ui->label_latest->setText("上次暂停/保存时间："+config_.lastSaveTime.toString());
 }
 
 void Widget::saveTempFile()

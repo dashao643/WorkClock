@@ -1,5 +1,6 @@
 QT       += core gui
 QT       += sql
+QT       += charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -12,6 +13,7 @@ CONFIG += c++17
 SOURCES += \
     src/appconfig.cpp \
     src/main.cpp \
+    src/recordchart.cpp \
     src/recordmodel.cpp \
     src/targetdialog.cpp \
     src/timedialog.cpp \
@@ -21,6 +23,7 @@ SOURCES += \
 HEADERS += \
     src/appconfig.h \
     src/dataStructure.h \
+    src/recordchart.h \
     src/recordmodel.h \
     src/targetdialog.h \
     src/timedialog.h \
