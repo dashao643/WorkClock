@@ -1,8 +1,8 @@
 #include "widget.h"
 #include "ui_widget.h"
-#include "timedialog.h"
-#include "targetdialog.h"
-#include "tmessagebox.h"
+#include "dialog/timedialog.h"
+#include "dialog/targetdialog.h"
+#include "dialog/tmessagebox.h"
 
 #include <QFile>
 #include <QDir>

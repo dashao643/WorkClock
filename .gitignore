@@ -2,6 +2,6 @@ build/
 .vscode/
 .qtcreator
 .claude/
-CLAUDE.md
-RECORD.md
-# CMakePresets.json
+claude.md
+record.md
+CMakePresets.json

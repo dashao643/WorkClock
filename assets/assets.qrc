@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/">
+        <file>picture/arrow_down.png</file>
+        <file>picture/arrow_down_h.png</file>
+        <file>picture/arrow_up_h.png</file>
+        <file>picture/arrow_up.png</file>
+        <file>picture/clock1.ico</file>
+        <file>picture/check.png</file>
+        <file>picture/edit.png</file>
+        <file>picture/clockIn2.png</file>
+        <file>picture/clockIn2_p.png</file>
+        <file>picture/clockIn2_h.png</file>
+        <file>picture/edit_h.png</file>
+        <file>picture/pause.png</file>
+        <file>picture/edit_p.png</file>
+        <file>picture/pause_h.png</file>
+        <file>picture/play2.ico</file>
+        <file>picture/reset.png</file>
+        <file>picture/play2_h.ico</file>
+        <file>picture/reset_h.png</file>
+        <file>picture/save.ico</file>
+        <file>picture/reset_p.png</file>
+        <file>picture/save_h.ico</file>
+        <file>picture/settings.ico</file>
+        <file>picture/settings_h.ico</file>
+        <file>picture/target.png</file>
+        <file>picture/target_n.png</file>
+        <file>style.qss</file>
+    </qresource>
+</RCC>
