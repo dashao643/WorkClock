@@ -20,8 +20,8 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
     this->resize(390, 480);
-
     // this->resize(800, 800);
+    
     qDebug()<<"当前窗口大小："<<this->width()<<" "<<this->height();
     this->setWindowTitle(QString("工作时钟-v%1").arg(APP_VERSION));
     this->setWindowIcon(QIcon(ICON_CLOCK1));
@@ -40,7 +40,6 @@ Widget::Widget(QWidget *parent)
     dateStr_ = QDate::currentDate().toString("yyyy-MM-dd");
 
     sqliteInit();
-
     uiTimeShowInit();
     uiRecordInit();
     uiChartInit();

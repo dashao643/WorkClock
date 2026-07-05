@@ -10,6 +10,7 @@
 #include <QSqlQuery>
 #include <QTimer>
 
+const QString APP_VERSION = "1.3.0";
 const QString DATABASE_FILE_NAME = "workClock.db";
 
 QT_BEGIN_NAMESPACE

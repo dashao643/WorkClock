@@ -1,30 +1,30 @@
 <RCC>
     <qresource prefix="/">
-        <file>PicRes/arrowDown.ico</file>
-        <file>PicRes/arrowDown_h.ico</file>
-        <file>PicRes/arrowUp.ico</file>
-        <file>PicRes/arrowUp_h.ico</file>
-        <file>PicRes/clock1.ico</file>
-        <file>PicRes/pause.png</file>
-        <file>PicRes/pause_h.png</file>
-        <file>PicRes/play2.ico</file>
-        <file>PicRes/play2_h.ico</file>
-        <file>PicRes/save.ico</file>
-        <file>PicRes/save_h.ico</file>
-        <file>PicRes/settings.ico</file>
-        <file>PicRes/settings_h.ico</file>
-        <file>PicRes/target.png</file>
+        <file>resource/arrowDown_h.ico</file>
+        <file>resource/arrowUp.ico</file>
+        <file>resource/arrowDown.ico</file>
+        <file>resource/arrowUp_h.ico</file>
+        <file>resource/clockIn2_h.png</file>
+        <file>resource/clock1.ico</file>
+        <file>resource/clockIn2.png</file>
+        <file>resource/check.png</file>
+        <file>resource/edit.png</file>
+        <file>resource/clockIn2_p.png</file>
+        <file>resource/edit_p.png</file>
+        <file>resource/edit_h.png</file>
+        <file>resource/pause_h.png</file>
+        <file>resource/pause.png</file>
+        <file>resource/play2.ico</file>
+        <file>resource/play2_h.ico</file>
+        <file>resource/reset.png</file>
+        <file>resource/reset_h.png</file>
+        <file>resource/reset_p.png</file>
+        <file>resource/save.ico</file>
+        <file>resource/save_h.ico</file>
+        <file>resource/settings.ico</file>
+        <file>resource/settings_h.ico</file>
+        <file>resource/target.png</file>
+        <file>resource/target_n.png</file>
         <file>style.qss</file>
-        <file>PicRes/target_n.png</file>
-        <file>PicRes/reset.png</file>
-        <file>PicRes/reset_h.png</file>
-        <file>PicRes/reset_p.png</file>
-        <file>PicRes/check.png</file>
-        <file>PicRes/clockIn2.png</file>
-        <file>PicRes/clockIn2_h.png</file>
-        <file>PicRes/clockIn2_p.png</file>
-        <file>PicRes/edit.png</file>
-        <file>PicRes/edit_h.png</file>
-        <file>PicRes/edit_p.png</file>
     </qresource>
 </RCC>

@@ -54,7 +54,7 @@ target_link_libraries(WorkClock2
 )
 
 target_compile_definitions(WorkClock2 PRIVATE
-    APP_VERSION="${PROJECT_VERSION}"
+    # APP_VERSION="${PROJECT_VERSION}"
 )
 
 include(GNUInstallDirs)

@@ -4,4 +4,4 @@ build/
 .claude/
 CLAUDE.md
 RECORD.md
-CMakePresets.json
+# CMakePresets.json

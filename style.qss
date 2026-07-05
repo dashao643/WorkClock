@@ -75,90 +75,90 @@ QPushButton:disabled {
 QPushButton#btn_startStop[action="stop"] {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/play2.ico);
+  image: url(:/resource/play2.ico);
 }
 QPushButton#btn_startStop[action="stop"]:pressed {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/play2_h.ico);
+  image: url(:/resource/play2_h.ico);
 }
 QPushButton#btn_startStop[action="start"] {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/pause.png);
+  image: url(:/resource/pause.png);
 }
 QPushButton#btn_startStop[action="start"]:pressed {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/pause_h.png);
+  image: url(:/resource/pause_h.png);
 }
 
 QPushButton#btn_save {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/save.ico);
+  image: url(:/resource/save.ico);
 }
 QPushButton#btn_save:hover {
-  image: url(:/PicRes/save_h.ico);
+  image: url(:/resource/save_h.ico);
 }
 QPushButton#btn_save:pressed {
-  image: url(:/PicRes/save.ico);
+  image: url(:/resource/save.ico);
 }
 QPushButton#btn_save:disabled {
-  image: url(:/PicRes/save_h.ico);
+  image: url(:/resource/save_h.ico);
 }
 
 QPushButton#btn_reset {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/reset.png);
+  image: url(:/resource/reset.png);
 }
 QPushButton#btn_reset:hover {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/reset_h.png);
+  image: url(:/resource/reset_h.png);
 }
 QPushButton#btn_reset:pressed {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/reset_p.png);
+  image: url(:/resource/reset_p.png);
 }
 QPushButton#btn_reset:disabled {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/reset_p.png);
+  image: url(:/resource/reset_p.png);
 }
 
 QPushButton#btn_change {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/edit.png);
+  image: url(:/resource/edit.png);
 }
 QPushButton#btn_change:hover {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/edit_h.png);
+  image: url(:/resource/edit_h.png);
 }
 QPushButton#btn_change:pressed {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/edit_p.png);
+  image: url(:/resource/edit_p.png);
 }
 
 QPushButton#btn_target {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/clockIn2.png);
+  image: url(:/resource/clockIn2.png);
 }
 QPushButton#btn_target:hover {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/clockIn2_h.png);
+  image: url(:/resource/clockIn2_h.png);
 }
 QPushButton#btn_target:pressed {
   border: none;
   background-color: transparent;
-  image: url(:/PicRes/clockIn2_p.png);
+  image: url(:/resource/clockIn2_p.png);
 }
 
 /********************* QRadioButton *********************/
@@ -197,7 +197,7 @@ QCheckBox::indicator {
 QCheckBox::indicator:checked {
   background-color: #639cdc;
   border-color: #639cdc;
-  /* image: url(:PicRes/save_h.ico); */
+  /* image: url(:resource/save_h.ico); */
 }
 
 QCheckBox::indicator:hover {
@@ -234,12 +234,12 @@ QComboBox QAbstractItemView::item:hover {
   background-color: #c5ebff;
 }
 QComboBox::down-arrow {
-  image: url(:/PicRes/arrowDown.ico);
+  image: url(:/resource/arrowDown.ico);
   width: 10px;
   height: 10px;
 }
 QComboBox::down-arrow:hover {
-  image: url(:/PicRes/arrowDown_h.ico);
+  image: url(:/resource/arrowDown_h.ico);
 }
 QComboBox::drop-down {
   border: none;
@@ -296,20 +296,20 @@ QSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::up-button, QDoubleSp
   background-color: #a5cbf5;
 }
 QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {
-  image: url(:/PicRes/arrowUp.ico);
+  image: url(:/resource/arrowUp.ico);
   width: 10px;
   height: 10px;
 }
 QSpinBox::up-arrow:hover, QDoubleSpinBox::up-arrow:hover {
-  image: url(:/PicRes/arrowUp_h.ico);
+  image: url(:/resource/arrowUp_h.ico);
 }
 QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
-  image: url(:/PicRes/arrowDown.ico);
+  image: url(:/resource/arrowDown.ico);
   width: 10px;
   height: 10px;
 }
 QSpinBox::down-arrow:hover, QDoubleSpinBox::down-arrow:hover {
-  image: url(:/PicRes/arrowDown_h.ico);
+  image: url(:/resource/arrowDown_h.ico);
 }
 
 /********************* QScrollBar *********************/
