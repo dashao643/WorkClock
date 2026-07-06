@@ -9,7 +9,7 @@
 RecordModel::RecordModel(QObject *parent)
   : QSqlQueryModel(parent)
 {
-  clockInIcon_ = QIcon(":/PicRes/target.png");
+  clockInIcon_ = QIcon(":/picture/target.png");
 }
 
 void RecordModel::setTargetNames(const QStringList &names)

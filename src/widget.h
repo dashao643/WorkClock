@@ -23,7 +23,7 @@ class Widget : public QWidget
   Q_OBJECT
 
 public:
-  const QString ICON_CLOCK1 = ":/PicRes/clock1.ico";
+  const QString ICON_CLOCK1 = ":/picture/clock1.ico";
   const QString FILE_NAME = "EverydayRecord.txt";
 
   AppConfig *appConfig_;

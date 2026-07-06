@@ -87,7 +87,7 @@
         </property>
         <property name="icon">
          <iconset resource="resource.qrc">
-          <normaloff>:/PicRes/check.png</normaloff>:/PicRes/check.png</iconset>
+          <normaloff>:/picture/check.png</normaloff>:/picture/check.png</iconset>
         </property>
        </widget>
       </item>

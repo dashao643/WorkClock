@@ -17,8 +17,8 @@ TargetDialog::TargetDialog(const QStringList &targetList, QSqlQuery *query, QWid
   query_ = query;
   todayStr_ = QDate::currentDate().toString("yyyy-MM-dd");
   itemColor_ = QColor(144, 238, 144);
-  itemIcon_ = QIcon(":/PicRes/target.png");
-  itemNIcon_ = QIcon(":/PicRes/target_n.png");
+  itemIcon_ = QIcon(":/picture/target.png");
+  itemNIcon_ = QIcon(":/picture/target_n.png");
 
   listWidgetInit(targetList);
 }
