@@ -10,17 +10,17 @@ const QString CONFIG_FILE_NAME = "setting.ini";
 
 class AppConfig : public QObject
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit AppConfig(QObject *parent = nullptr);
+  explicit AppConfig(QObject *parent = nullptr);
 
-    Config_t readConfig();
-    void saveConfig(const Config_t &config);
+  Config_t readConfig();
+  void saveConfig(const Config_t &config);
 
 signals:
 
 private:
-    QSettings setting_;
+  QSettings setting_;
 };
 
 #endif // APPCONFIG_H

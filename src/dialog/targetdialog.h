@@ -14,34 +14,34 @@ class TargetDialog;
 
 class TargetDialog : public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit TargetDialog(const QStringList &targetList, QSqlQuery *query, QWidget *parent = nullptr);
-    ~TargetDialog();
+  explicit TargetDialog(const QStringList &targetList, QSqlQuery *query, QWidget *parent = nullptr);
+  ~TargetDialog();
 
-    QStringList getTargetList();
+  QStringList getTargetList();
 
 signals:
 
 private slots:
-    void on_btn_addTarget_clicked();
-    void on_btn_changeTarget_clicked();
-    void on_btn_clockIn_clicked();
+  void on_btn_addTarget_clicked();
+  void on_btn_changeTarget_clicked();
+  void on_btn_clockIn_clicked();
 
 private:
-    // QSqlDatabase db_;
+  // QSqlDatabase db_;
 
-    QSqlQuery *query_;
-    QString todayStr_;
-    QColor itemColor_;
-    QIcon itemIcon_;
-    QIcon itemNIcon_;
-    QVector<bool> targetFlagV_;
+  QSqlQuery *query_;
+  QString todayStr_;
+  QColor itemColor_;
+  QIcon itemIcon_;
+  QIcon itemNIcon_;
+  QVector<bool> targetFlagV_;
 
-    void listWidgetInit(const QStringList &targetList);
+  void listWidgetInit(const QStringList &targetList);
 
-    Ui::TargetDialog *ui;
+  Ui::TargetDialog *ui;
 };
 
 #endif // TARGETDIALOG_H

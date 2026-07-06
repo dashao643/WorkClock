@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
 
-project(WorkClock2 LANGUAGES CXX)
+project(WorkClock
+    VERSION 1.3.0
+    LANGUAGES CXX
+)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -13,7 +16,7 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets Sql Charts)
 
 qt_standard_project_setup()
 
-qt_add_executable(WorkClock2
+qt_add_executable(WorkClock
     MACOSX_BUNDLE           # 启用qDebug()
     # WIN32 MACOSX_BUNDLE     # 关闭qDebug()
 
@@ -49,9 +52,13 @@ qt_add_executable(WorkClock2
     assets/app_ico.rc
 )
 
-target_include_directories(WorkClock2 PRIVATE src)
+target_include_directories(WorkClock PRIVATE src)
 
-target_link_libraries(WorkClock2
+target_compile_definitions(WorkClock PRIVATE
+    APP_VERSION="${PROJECT_VERSION}"
+)
+
+target_link_libraries(WorkClock
     PRIVATE
         Qt::Core
         Qt::Gui
@@ -62,14 +69,14 @@ target_link_libraries(WorkClock2
 
 include(GNUInstallDirs)
 
-install(TARGETS WorkClock2
+install(TARGETS WorkClock
     BUNDLE  DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 qt_generate_deploy_app_script(
-    TARGET WorkClock2
+    TARGET WorkClock
     OUTPUT_SCRIPT deploy_script
     NO_UNSUPPORTED_PLATFORM_ERROR
 )

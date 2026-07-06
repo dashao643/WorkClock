@@ -9,19 +9,19 @@ class TimeDialog;
 
 class TimeDialog : public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit TimeDialog(QWidget *parent = nullptr);
+  explicit TimeDialog(QWidget *parent = nullptr);
 
-    int getChangeMinutes();
+  int getChangeMinutes();
 
 private slots:
-    void on_btn_OK_clicked();
-    void on_btn_cancel_clicked();
+  void on_btn_OK_clicked();
+  void on_btn_cancel_clicked();
 
 private:
-    Ui::TimeDialog *ui;
+  Ui::TimeDialog *ui;
 };
 
 #endif // TIMEDIALOG_H

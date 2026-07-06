@@ -2,27 +2,27 @@
 #include "ui_timedialog.h"
 
 TimeDialog::TimeDialog(QWidget *parent)
-    : QDialog(parent)
-    , ui(new Ui::TimeDialog) 
+  : QDialog(parent)
+  , ui(new Ui::TimeDialog) 
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
 
-    this->setWindowTitle("对话框");
-    ui->spinBox->setValue(1);
+  this->setWindowTitle("对话框");
+  ui->spinBox->setValue(1);
 }
 
 int TimeDialog::getChangeMinutes()
 {
-    return ui->spinBox->value();
+  return ui->spinBox->value();
 }
 
 void TimeDialog::on_btn_OK_clicked()
 {
-    this->accept();
+  this->accept();
 }
 
 void TimeDialog::on_btn_cancel_clicked()
 {
-    this->reject();
+  this->reject();
 }
 
