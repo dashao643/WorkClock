@@ -57,10 +57,9 @@ private slots:
   void on_btn_target_clicked();
   void on_btn_toUpper_clicked();
   void on_btn_toLower_clicked();
+  void on_btn_path_clicked();
 
   void do_timerTimeout();
-
-  // void on_btn_clicked();
 
 private:
   void updateTimerState();

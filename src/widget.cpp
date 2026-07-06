@@ -156,17 +156,23 @@ void Widget::uiRecordInit()
 
 void Widget::uiChartInit()
 {
-  QChart *chart = new QChart();
-  recordChart_->chartLoad(*recordModel_, *chart);
+  QChart *dayChart = new QChart();
+  QChart *weekChart = new QChart();
+  QChart *monthChart = new QChart();
+  QList<QChart*> chartList = {dayChart, weekChart, monthChart};
 
-  ui->chartView->setChart(chart);
-  ui->chartView->setRenderHint(QPainter::Antialiasing);
+  recordChart_->chartLoad(*recordModel_, chartList);
+
+  ui->chartView_day->setChart(chartList.at(0));
+  ui->chartView_day->setRenderHint(QPainter::Antialiasing);
+
+  ui->chartView_week->setChart(chartList.at(1));
 
   // 等 chart 开始加载 10ms 后, 执行滚动到底部 + 添加时长标签
-  connect(chart, &QChart::plotAreaChanged, this, [this, chart](const QRectF &area) {
+  connect(chartList.at(0), &QChart::plotAreaChanged, this, [=](const QRectF &area) {
     if (area.isEmpty()) return;
     QTimer::singleShot(10, [=](){
-      QScrollBar *scrollBar = ui->scrollArea->verticalScrollBar();
+      QScrollBar *scrollBar = ui->scrollArea_day->verticalScrollBar();
       int max = scrollBar->maximum();
       scrollBar->setValue(max);
       // recordChart_->addBarLabels(*chart);
@@ -411,13 +417,21 @@ void Widget::closeEvent(QCloseEvent *event)
 
 void Widget::on_btn_toUpper_clicked()
 {
-  QString str = ui->lineEditToUpper->text().toUpper();
+  QString str = ui->lineEdit_toUpper->text().toUpper();
   str.replace(" ", "_");
-  ui->lineEditToUpper->setText(str);
+  ui->lineEdit_toUpper->setText(str);
 }
 
 void Widget::on_btn_toLower_clicked()
 {
-  QString str = ui->lineEditRemove->text().toLower();
-  ui->lineEditRemove->setText(str);
+  QString str = ui->lineEdit_toLower->text().toLower();
+
+  ui->lineEdit_toLower->setText(str);
+}
+
+void Widget::on_btn_path_clicked()
+{
+  QString str = ui->lineEdit_path->text();
+  str.replace('\\', '/');
+  ui->lineEdit_path->setText(str);
 }
