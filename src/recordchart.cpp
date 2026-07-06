@@ -3,68 +3,52 @@
 #include <QHorizontalBarSeries>
 #include <QBarSet>
 #include <QBarCategoryAxis>
-
-#include <QGraphicsSimpleTextItem>
-#include <QGraphicsScene>
-
 #include <QValueAxis>
+
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QFont>
-
+#include <QDate>
 #include <QtMath>
-#include <algorithm>
-#include <QTime>
 
 RecordChart::RecordChart(QObject *parent)
   : QObject{parent}
 {
-  dailyHours_.clear();
-  secondsList_.clear();
 }
 
-void RecordChart::chartInit(RecordModel &recordModel, QChart &chart)
+void RecordChart::chartLoad(RecordModel &recordModel, QChart &chart)
 {
   int rowCount = recordModel.rowCount();
-  if (rowCount == 0)
-    return;
+  if (rowCount <= 1) return;
 
-  QStringList dateStrings;
+  QList<double> dailyHours;
+  QList<QString> dateStrings;
+
   double maxHours = 0;
 
-  // 从 model 收集排除今天的所有日期和时长
-  for (int row = 0; row < rowCount - 1; row++) {
-    QSqlRecord rec = recordModel.record(row);
-    QString dateStr = rec.field(0).value().toString();
-    int seconds = rec.field(1).value().toInt();
+  // 构建图表顺序为从下向上, 所以先存最近的日期和时长(排除今天)
+  for (int row = rowCount - 2; row >= 0; row--) {
+    QSqlRecord record = recordModel.record(row);
+    QString dateStr = record.field(0).value().toString();
+    int seconds = record.field(1).value().toInt();
     double hours = seconds / 3600.0;
 
-    // 存日期
     dateStrings.append(dateStr);
-    // 存小时
-    dailyHours_.append(hours);
-    // 存秒数
-    secondsList_.append(seconds);
+    dailyHours.append(hours);
 
     if (hours > maxHours)
       maxHours = hours;
   }
 
-  // Y 轴反转：dateStrings 目前是 ASC(最早→最晚)，反转后最近日期在底部
-  std::reverse(dateStrings.begin(), dateStrings.end());
-  std::reverse(dailyHours_.begin(), dailyHours_.end());
-  std::reverse(secondsList_.begin(), secondsList_.end());
-
-  // X 轴范围 0 到 maxHours向上取整再 + 1,最小为8小时
+  // X 轴范围 0 到 maxHours向上取整再 + 1
   int xMax = qCeil(maxHours) + 1;
-  if (xMax < 8)
-    xMax = 8;
 
   // QBarSet: 第 i 个值 → QBarCategoryAxis 的第 i 个 category
+  // 一个 QBarSet 只能有一种颜色
   QBarSet *dailySet = new QBarSet("每日时长");
 
-  for (int i = 0; i < dailyHours_.size(); i++) {
-    *dailySet << dailyHours_[i];
+  for (int i = 0; i < dailyHours.size(); i++) {
+    *dailySet << dailyHours[i];
   }
 
   QHorizontalBarSeries *series = new QHorizontalBarSeries();
@@ -86,52 +70,14 @@ void RecordChart::chartInit(RecordModel &recordModel, QChart &chart)
   chart.addAxis(axisY, Qt::AlignLeft);
   series->attachAxis(axisY);
 
-  chart.legend()->setVisible(true);
-  chart.legend()->setAlignment(Qt::AlignBottom);
+  series->setLabelsVisible(true);
+  series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
+  series->setLabelsPrecision(3);
 
-  // 设置图表最小高度，配合 QScrollArea 实现滚动
+  chart.legend()->setVisible(false);
+
   int barHeight = 30;
   int topBottomReserve = 120;
   int totalHeight = dateStrings.size() * barHeight + topBottomReserve;
   chart.setMinimumHeight(totalHeight);
-}
-
-// 1.时间格式改成 X:XX
-// 2.图表间距调为最小
-// 3.滚动条还是没滚到最下
-void RecordChart::addBarLabels(QChart &chart)
-{
-  if (dailyHours_.isEmpty())
-    return;
-
-  // 获取唯一的 QHorizontalBarSeries（chartInit 只创建了一个）
-  auto seriesList = chart.series();
-  if (seriesList.isEmpty())
-    return;
-  QHorizontalBarSeries *series = qobject_cast<QHorizontalBarSeries *>(seriesList.first());
-  if (!series)
-    return;
-
-  QFont font;
-  font.setPointSize(9);
-
-  for (int i = 0; i < dailyHours_.size(); i++) {
-    QString text = formatSeconds(secondsList_[i]);
-    // 使用 mapToPosition 把数据坐标转为 scene 坐标
-    QPointF barEnd = chart.mapToPosition(QPointF(dailyHours_[i], (qreal)i), series);
-
-    QGraphicsSimpleTextItem *label = new QGraphicsSimpleTextItem(text);
-    label->setFont(font);
-    label->setBrush(QColor(80, 80, 80));
-
-    QRectF rect = label->boundingRect();
-    label->setPos(barEnd.x() + 4, barEnd.y() - rect.height() / 2);
-    chart.scene()->addItem(label);
-  }
-}
-
-QString RecordChart::formatSeconds(int totalSeconds)
-{
-  QTime time = QTime(0, 0, 0).addSecs(totalSeconds);
-  return QString("%1h%2m").arg(time.hour()).arg(time.minute());
 }

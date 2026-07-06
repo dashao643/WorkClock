@@ -157,21 +157,23 @@ void Widget::uiRecordInit()
 void Widget::uiChartInit()
 {
   QChart *chart = new QChart();
-  recordChart_->chartInit(*recordModel_, *chart);
+  recordChart_->chartLoad(*recordModel_, *chart);
 
   ui->chartView->setChart(chart);
   ui->chartView->setRenderHint(QPainter::Antialiasing);
 
-  // 等 chart 真正布局完成后再滚动到底部 + 添加时长标签
+  // 等 chart 开始加载 10ms 后, 执行滚动到底部 + 添加时长标签
   connect(chart, &QChart::plotAreaChanged, this, [this, chart](const QRectF &area) {
-    if (area.isEmpty())
-      return;
-    QScrollBar *scrollBar = ui->chartView->verticalScrollBar();
-    scrollBar->setValue(scrollBar->maximum());
-    recordChart_->addBarLabels(*chart);
+    if (area.isEmpty()) return;
+    QTimer::singleShot(10, [=](){
+      QScrollBar *scrollBar = ui->scrollArea->verticalScrollBar();
+      int max = scrollBar->maximum();
+      scrollBar->setValue(max);
+      // recordChart_->addBarLabels(*chart);
+    });
   }, Qt::SingleShotConnection);
 
-  ui->label_latest->setText("上次暂停/保存时间："+config_.lastSaveTime.toString());
+  ui->label_latest->setText("上次暂停/保存时间：" + config_.lastSaveTime.toString());
 }
 
 void Widget::uiToolInit()
@@ -364,6 +366,19 @@ void Widget::saveTempFile()
   file.write(string.toUtf8());
   file.close();
 }
+
+// void Widget::on_btn_clicked()
+// {
+//   qDebug()<<"点击测试";
+//   QScrollBar *scrollBar = ui->scrollArea->verticalScrollBar();
+//   int max = scrollBar->maximum();
+//   qDebug()<< "max=" << max;
+//   qDebug()<< ui->scrollArea->verticalScrollBar()->sliderPosition();
+//   qDebug()<< ui->scrollArea->verticalScrollBar()->value();
+
+//   scrollBar->setValue(max);
+//   // ui->scrollArea->setVerticalScrollBar(scrollBar);
+// }
 
 void Widget::closeEvent(QCloseEvent *event)
 {

@@ -12,14 +12,9 @@ class RecordChart : public QObject
 public:
   explicit RecordChart(QObject *parent = nullptr);
 
-  void chartInit(RecordModel &recordModel, QChart &chart);
-  void addBarLabels(QChart &chart);
+  void chartLoad(RecordModel &recordModel, QChart &chart);
 
 private:
-  QList<double> dailyHours_;      // 存储xx.xx小时
-  QList<int> secondsList_;        // 存储总秒数
-
-  QString formatSeconds(int totalSeconds);
 };
 
 #endif // RECORDCHART_H

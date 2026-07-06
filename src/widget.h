@@ -44,7 +44,6 @@ public:
   ~Widget();
 
   void sqliteInit();
-  // void textFileRead();
   void uiTimeShowInit();
   void uiRecordInit();
   void uiChartInit();
@@ -60,6 +59,9 @@ private slots:
   void on_btn_toLower_clicked();
 
   void do_timerTimeout();
+
+  // void on_btn_clicked();
+
 private:
   void updateTimerState();
   void saveTimerRecord(int seconds);
