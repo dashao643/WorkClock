@@ -14,6 +14,7 @@
 
 #include <QtMath>
 #include <algorithm>
+#include <QTime>
 
 RecordChart::RecordChart(QObject *parent)
   : QObject{parent}
@@ -115,7 +116,7 @@ void RecordChart::addBarLabels(QChart &chart)
   font.setPointSize(9);
 
   for (int i = 0; i < dailyHours_.size(); i++) {
-    QString text = RecordModel::formatSeconds(secondsList_[i]);
+    QString text = formatSeconds(secondsList_[i]);
     // 使用 mapToPosition 把数据坐标转为 scene 坐标
     QPointF barEnd = chart.mapToPosition(QPointF(dailyHours_[i], (qreal)i), series);
 
@@ -127,4 +128,10 @@ void RecordChart::addBarLabels(QChart &chart)
     label->setPos(barEnd.x() + 4, barEnd.y() - rect.height() / 2);
     chart.scene()->addItem(label);
   }
+}
+
+QString RecordChart::formatSeconds(int totalSeconds)
+{
+  QTime time = QTime(0, 0, 0).addSecs(totalSeconds);
+  return QString("%1h%2m").arg(time.hour()).arg(time.minute());
 }

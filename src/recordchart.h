@@ -18,6 +18,8 @@ public:
 private:
   QList<double> dailyHours_;      // 存储xx.xx小时
   QList<int> secondsList_;        // 存储总秒数
+
+  QString formatSeconds(int totalSeconds);
 };
 
 #endif // RECORDCHART_H
