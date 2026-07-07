@@ -85,8 +85,10 @@ QBarSet* RecordChart::dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY)
   }
 
   // X 轴范围 0 到 maxHours向上取整再 + 1
-  if(xMax_ > 5)
+  if(maxHours > 5) {
     xMax_ = qCeil(maxHours) + 1;
+    qMax(xMax_, 24);
+  }
 
   // QBarSet: 第 i 个值 → QBarCategoryAxis 的第 i 个 category
   // 一个 QBarSet 只能有一种颜色
@@ -128,7 +130,7 @@ QBarSet* RecordChart::weekChartLoad(QChart *weekChart, QBarCategoryAxis *axisY)
   QList<double> avgHours;
   QList<QString> dateStrings;
 
-  double maxHours = 0;
+  // double maxHours = 0;
 
   while(query_->next()) {
     dateStrings.append(query_->value(0).toString());
@@ -136,11 +138,11 @@ QBarSet* RecordChart::weekChartLoad(QChart *weekChart, QBarCategoryAxis *axisY)
     double avg = query_->value(1).toInt() / 3600.0;
     avgHours.append(avg);
 
-    if(avg > maxHours) 
-      maxHours = avg;
+    // if(avg > maxHours) 
+    //   maxHours = avg;
   }
-  if(xMax_ > 5)
-    xMax_ = qCeil(maxHours) + 1;
+  // if(maxHours > 5)
+  //   xMax_ = qCeil(maxHours) + 1;
 
   QBarSet *weekSet = new QBarSet("每日时长");
   weekSet->setColor(QColor("#0984E3"));
@@ -177,7 +179,7 @@ QBarSet* RecordChart::monthChartLoad(QChart *monthChart, QBarCategoryAxis *axisY
 
   QList<double> avgHours;
   QList<QString> monthLabels;
-  double maxHours = 0;
+  // double maxHours = 0;
 
   while (query_->next()) {
     QString monthLabel = query_->value(0).toString();
@@ -186,11 +188,11 @@ QBarSet* RecordChart::monthChartLoad(QChart *monthChart, QBarCategoryAxis *axisY
     monthLabels.append(monthLabel);
     avgHours.append(avg);
 
-    if (avg > maxHours) 
-      maxHours = avg;
+    // if (avg > maxHours) 
+    //   maxHours = avg;
   }
-  if(xMax_ > 5)
-    xMax_ = qCeil(maxHours) + 1;
+  // if(maxHours > 5)
+  //   xMax_ = qCeil(maxHours) + 1;
 
   QBarSet *monthSet = new QBarSet("月均时长");
   monthSet->setColor(QColor("#0652DD"));
