@@ -23,7 +23,7 @@
       <enum>QTabWidget::TabShape::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <property name="elideMode">
       <enum>Qt::TextElideMode::ElideNone</enum>
@@ -385,7 +385,7 @@
          </property>
          <widget class="QWidget" name="tab1">
           <attribute name="title">
-           <string>每日图表</string>
+           <string>每日</string>
           </attribute>
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
@@ -421,7 +421,7 @@
          </widget>
          <widget class="QWidget" name="tab2">
           <attribute name="title">
-           <string>每周图表</string>
+           <string>每周</string>
           </attribute>
           <layout class="QHBoxLayout" name="horizontalLayout_11">
            <item>
@@ -457,7 +457,7 @@
          </widget>
          <widget class="QWidget" name="tab3">
           <attribute name="title">
-           <string>每月图表</string>
+           <string>每月</string>
           </attribute>
           <layout class="QHBoxLayout" name="horizontalLayout_12">
            <item>

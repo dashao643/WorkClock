@@ -1,12 +1,12 @@
 #include "recordchart.h"
 
 #include <QHorizontalBarSeries>
-
 #include <QValueAxis>
+
+#include <QSqlError>
 
 #include <QSqlRecord>
 #include <QSqlField>
-#include <QFont>
 #include <QDate>
 #include <QtMath>
 
@@ -15,35 +15,12 @@ RecordChart::RecordChart(QObject *parent)
 {
 }
 
-void RecordChart::chartLoad(RecordModel &recordModel, QList<QChart*> &chartList)
+void RecordChart::chartLoad(QSqlQuery *query, QList<QChart*> &chartList)
 {
-  if (chartList.size() != 3) return;
-  int rowCount = recordModel.rowCount();
-  if (rowCount <= 1) return;
+  if (chartList.size() != CHART_CNT) return;
+  query_ = query;
 
-  dailyHours_.clear();
-  dateStrings_.clear();
-
-  double maxHours = 0;
-
-  // 构建图表顺序为从下向上, 所以先存最近的日期和时长(排除今天)
-  for (int row = rowCount - 2; row >= 0; row--) {
-    QSqlRecord record = recordModel.record(row);
-    QString dateStr = record.field(0).value().toString();
-    int seconds = record.field(1).value().toInt();
-    double hours = seconds / 3600.0;
-
-    dateStrings_.append(dateStr);
-    dailyHours_.append(hours);
-
-    if (hours > maxHours)
-      maxHours = hours;
-  }
-
-  // X 轴范围 0 到 maxHours向上取整再 + 1
-  int xMax = qCeil(maxHours) + 1;
-
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < CHART_CNT; i++) {
     QBarSet* resSet = nullptr;
     QBarCategoryAxis *axisY = new QBarCategoryAxis();
 
@@ -54,12 +31,13 @@ void RecordChart::chartLoad(RecordModel &recordModel, QList<QChart*> &chartList)
     else if(i == 2)
       resSet = monthChartLoad(chartList[2], axisY);
 
+    if(resSet == nullptr) return;
     // X 轴与 series 为公共部分
     QHorizontalBarSeries *series = new QHorizontalBarSeries();
     series->append(resSet);
 
     QValueAxis *axisX = new QValueAxis();
-    axisX->setRange(0, xMax);
+    axisX->setRange(0, xMax_);
     axisX->setTickInterval(1);
     axisX->setLabelFormat("%d");
     axisX->setTitleText("时长（小时）");
@@ -67,32 +45,62 @@ void RecordChart::chartLoad(RecordModel &recordModel, QList<QChart*> &chartList)
     chartList[i]->addAxis(axisX, Qt::AlignBottom);
     chartList[i]->addAxis(axisY, Qt::AlignLeft);
 
+    // 先 addSeries，再 attachAxis
+    chartList[i]->addSeries(series);
     series->attachAxis(axisX);
     series->attachAxis(axisY);
-    chartList[i]->addSeries(series);
 
     series->setLabelsVisible(true);
     series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
     series->setLabelsPrecision(3);
     chartList[i]->legend()->setVisible(false);
+
+    resSet = nullptr;
   }
 }
 
+// 按日期汇总
 QBarSet* RecordChart::dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY)
 {
+  QString sql = "SELECT date, SUM(seconds) FROM record GROUP BY date ORDER BY date DESC";
+  
+  if(!query_->exec(sql)){
+    QString errorInfo = query_->lastError().text();
+    emit sgn_messageBox("每日图表加载中查询失败:\n"+ errorInfo);
+    return nullptr;
+  }
+
+  QList<double> dailyHours;
+  QList<QString> dateStrings;
+  double maxHours = 0;
+
+  while(query_->next()) {
+    dateStrings.append(query_->value(0).toString());
+
+    double dayHour = query_->value(1).toInt() / 3600.0;
+    dailyHours.append(dayHour);
+
+    if(dayHour > maxHours) 
+      maxHours = dayHour;
+  }
+
+  // X 轴范围 0 到 maxHours向上取整再 + 1
+  xMax_ = qCeil(maxHours) + 1;
+
   // QBarSet: 第 i 个值 → QBarCategoryAxis 的第 i 个 category
-  /// 一个 QBarSet 只能有一种颜色
+  // 一个 QBarSet 只能有一种颜色
   QBarSet *dailySet = new QBarSet("每日时长");
 
-  for (int i = 0; i < dailyHours_.size(); i++) {
-    *dailySet << dailyHours_[i];
+  dailySet->setColor(QColor("#3498DB"));
+
+  for (int i = 0; i < dailyHours.size(); i++) {
+    *dailySet << dailyHours[i];
   }
 
   // Y 轴: 每日日期
-  axisY->append(dateStrings_);
-  dayChart->addAxis(axisY, Qt::AlignLeft);
+  axisY->append(dateStrings);
 
-  int totalHeight = dateStrings_.size() * barHeight_ + topBottomReserve_;
+  int totalHeight = dateStrings.size() * barHeight_ + reserve_;
   dayChart->setMinimumHeight(totalHeight);
 
   return dailySet;
@@ -100,52 +108,99 @@ QBarSet* RecordChart::dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY)
 
 QBarSet* RecordChart::weekChartLoad(QChart *weekChart, QBarCategoryAxis *axisY)
 {
-  // 1. 按周分组汇总数据
-  QMap<int, double> weekSumMap;  // weekNum → 该周总工时
-  QList<int> weekOrder;          // 记录周的先后顺序
-
-  for (int i = 0; i < dailyHours_.size(); i++) {
-      QDate date = QDate::fromString(dateStrings_[i], "yyyy-MM-dd");
-      int weekNum = date.weekNumber();
-
-      if (!weekSumMap.contains(weekNum)) {
-          weekOrder.append(weekNum);
-      }
-      weekSumMap[weekNum] += dailyHours_[i];
+  QString sql = R"(
+    SELECT
+      strftime('%Y-W%W', date) AS week_idx,
+      SUM(seconds) / COUNT(DISTINCT date) AS avg_hours
+    FROM record
+    WHERE date != date('now')
+    GROUP BY week_idx
+    ORDER BY week_idx DESC;
+  )";
+  
+  if(!query_->exec(sql)){
+    QString errorInfo = query_->lastError().text();
+    emit sgn_messageBox("周均图表加载中查询失败:\n"+ errorInfo);
+    return nullptr;
   }
 
-  // 2. 创建 QBarSet，每个周一个值
-  QBarSet *weekSet = new QBarSet("周均时长");
-  QStringList weekLabels;
+  QList<double> avgHours;
+  QList<QString> dateStrings;
 
-  for (int weekNum : weekOrder) {
-      *weekSet << weekSumMap[weekNum];
-      weekLabels.append(QString("第%1周").arg(weekNum));
+  double maxHours = 0;
+
+  while(query_->next()) {
+    dateStrings.append(query_->value(0).toString());
+
+    double avg = query_->value(1).toInt() / 3600.0;
+    avgHours.append(avg);
+
+    if(avg > maxHours) 
+      maxHours = avg;
   }
 
-  // 3. Y 轴用周标签
-  axisY->append(weekLabels);
-  weekChart->addAxis(axisY, Qt::AlignLeft);
+  xMax_ = qCeil(maxHours) + 1;
 
-  // 4. 高度自适应
-  int totalHeight = weekLabels.size() * barHeight_ + topBottomReserve_;
+  QBarSet *weekSet = new QBarSet("每日时长");
+  weekSet->setColor(QColor("#0984E3"));
+
+  for (int i = 0; i < avgHours.size(); i++) {
+    *weekSet << avgHours[i];
+  }
+
+  // Y 轴: 周索引
+  axisY->append(dateStrings);
+
+  int totalHeight = dateStrings.size() * barHeight_ + reserve_;
   weekChart->setMinimumHeight(totalHeight);
 
   return weekSet;
-
-  // QBarSet *weekSet = new QBarSet("周均时长");
-
-  // int totalHeight = dateStrings_.size() / 7 * barHeight_ + topBottomReserve_;
-  // weekChart->setMinimumHeight(totalHeight);
-
-  // return weekSet;
 }
 
 QBarSet* RecordChart::monthChartLoad(QChart *monthChart, QBarCategoryAxis *axisY)
 {
-  QBarSet *monthSet = new QBarSet("月均时长");
+  QString sql = R"(
+    SELECT
+      strftime('%Y-%m', date) AS month_idx,
+      SUM(seconds) / 3600.0 / COUNT(DISTINCT date) AS avg_hours
+    FROM record
+    WHERE date != date('now')
+    GROUP BY month_idx
+    ORDER BY month_idx DESC;
+  )";
 
-  int totalHeight = dateStrings_.size() / 30 * barHeight_ + topBottomReserve_;
+  if (!query_->exec(sql)) {
+    emit sgn_messageBox("月均图表加载中查询失败:\n" + query_->lastError().text());
+    return nullptr;
+  }
+
+  QList<double> avgHours;
+  QList<QString> monthLabels;
+  double maxHours = 0;
+
+  while (query_->next()) {
+    QString monthLabel = query_->value(0).toString();
+    double avg = query_->value(1).toDouble();
+
+    monthLabels.append(monthLabel);
+    avgHours.append(avg);
+
+    if (avg > maxHours) 
+      maxHours = avg;
+  }
+
+  xMax_ = qCeil(maxHours) + 1;
+
+  QBarSet *monthSet = new QBarSet("月均时长");
+  monthSet->setColor(QColor("#0652DD"));
+
+  for (int i = 0; i < avgHours.size(); i++) {
+    *monthSet << avgHours[i];
+  }
+
+  axisY->append(monthLabels);
+
+  int totalHeight = monthLabels.size() * barHeight_ + reserve_;
   monthChart->setMinimumHeight(totalHeight);
 
   return monthSet;

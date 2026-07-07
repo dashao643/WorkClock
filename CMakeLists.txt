@@ -17,8 +17,8 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Widgets Sql Charts)
 qt_standard_project_setup()
 
 qt_add_executable(WorkClock
-	MACOSX_BUNDLE           # 启用终端和qDebug()
-	# WIN32 MACOSX_BUNDLE     # 关闭qDebug()
+	# MACOSX_BUNDLE           # 启用终端和qDebug()
+	WIN32 MACOSX_BUNDLE     # 关闭qDebug()
 
 	src/main.cpp
 

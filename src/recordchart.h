@@ -1,12 +1,15 @@
 #ifndef RECORDCHART_H
 #define RECORDCHART_H
 
-#include "recordmodel.h"
+// #include "recordmodel.h"
 
 #include <QObject>
+#include <QSqlQuery>
 #include <QChart>
 #include <QBarSet>
 #include <QBarCategoryAxis>
+
+constexpr int CHART_CNT = 3;
 
 class RecordChart : public QObject
 {
@@ -14,13 +17,17 @@ class RecordChart : public QObject
 public:
   explicit RecordChart(QObject *parent = nullptr);
 
-  void chartLoad(RecordModel &recordModel, QList<QChart*> &chartList);
+  void chartLoad(QSqlQuery *query, QList<QChart*> &chartList);
 
+signals:
+  void sgn_messageBox(QString info);
+  
 private:
-  QList<double> dailyHours_;
-  QList<QString> dateStrings_;
+  QSqlQuery *query_;
+  
+  int xMax_ = 0;
   int barHeight_ = 30;
-  int topBottomReserve_ = 120;
+  int reserve_ = 120;
 
   QBarSet* dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY);
   QBarSet* weekChartLoad(QChart *weekChart, QBarCategoryAxis *axisY);

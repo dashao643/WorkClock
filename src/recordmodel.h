@@ -22,7 +22,6 @@ public:
 private:
   QStringList targetNames_;
   QIcon clockInIcon_;
-
 };
 
 class IconDelegate : public QStyledItemDelegate

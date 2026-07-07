@@ -32,6 +32,9 @@ Widget::Widget(QWidget *parent)
 
 	recordModel_ = new RecordModel(this);
 	recordChart_ = new RecordChart(this);
+  connect(recordChart_, &RecordChart::sgn_messageBox, this, [=](QString info){
+    QMessageBox::critical(this, "警告", info);
+  });
 
 	timer_ = new QTimer(this);
 	timer_->setInterval(1000);
@@ -138,6 +141,7 @@ void Widget::uiRecordInit()
   }
 
   ui->tableView->setModel(recordModel_);
+
   for (int i = 2; i < recordModel_->columnCount(); i++) {
     ui->tableView->setItemDelegateForColumn(i, new IconDelegate(ui->tableView));
   }
@@ -161,23 +165,29 @@ void Widget::uiChartInit()
   QChart *monthChart = new QChart();
   QList<QChart*> chartList = {dayChart, weekChart, monthChart};
 
-  recordChart_->chartLoad(*recordModel_, chartList);
+  recordChart_->chartLoad(query_, chartList);
 
   ui->chartView_day->setChart(chartList.at(0));
-  ui->chartView_day->setRenderHint(QPainter::Antialiasing);
-
   ui->chartView_week->setChart(chartList.at(1));
+  ui->chartView_month->setChart(chartList.at(2));
 
-  // 等 chart 开始加载 10ms 后, 执行滚动到底部 + 添加时长标签
-  connect(chartList.at(0), &QChart::plotAreaChanged, this, [=](const QRectF &area) {
-    if (area.isEmpty()) return;
-    QTimer::singleShot(10, [=](){
-      QScrollBar *scrollBar = ui->scrollArea_day->verticalScrollBar();
-      int max = scrollBar->maximum();
-      scrollBar->setValue(max);
-      // recordChart_->addBarLabels(*chart);
-    });
-  }, Qt::SingleShotConnection);
+  QList<QScrollBar*> barList = {
+    ui->scrollArea_day->verticalScrollBar(),
+    ui->scrollArea_week->verticalScrollBar(),
+    ui->scrollArea_month->verticalScrollBar(),
+  };
+  for(int i = 0; i < chartList.size(); i++) {
+    // 等 chart 开始加载 10ms 后, 执行滚动到底部 + 添加时长标签
+    connect(chartList.at(i), &QChart::plotAreaChanged, this, [=](const QRectF &area) {
+      if (area.isEmpty()) return;
+      QTimer::singleShot(10, [=](){
+        QScrollBar *scrollBar = barList.at(i);
+        int max = scrollBar->maximum();
+        scrollBar->setValue(max);
+        // recordChart_->addBarLabels(*chart);
+      });
+    }, Qt::SingleShotConnection);
+  }
 
   ui->label_latest->setText("上次暂停/保存时间：" + config_.lastSaveTime.toString());
 }
