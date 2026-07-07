@@ -25,7 +25,7 @@ signals:
 private:
   QSqlQuery *query_;
   
-  int xMax_ = 0;
+  int xMax_ = 5;
   int barHeight_ = 30;
   int reserve_ = 120;
 

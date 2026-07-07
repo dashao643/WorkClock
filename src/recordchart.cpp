@@ -85,7 +85,8 @@ QBarSet* RecordChart::dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY)
   }
 
   // X 轴范围 0 到 maxHours向上取整再 + 1
-  xMax_ = qCeil(maxHours) + 1;
+  if(xMax_ > 5)
+    xMax_ = qCeil(maxHours) + 1;
 
   // QBarSet: 第 i 个值 → QBarCategoryAxis 的第 i 个 category
   // 一个 QBarSet 只能有一种颜色
@@ -138,8 +139,8 @@ QBarSet* RecordChart::weekChartLoad(QChart *weekChart, QBarCategoryAxis *axisY)
     if(avg > maxHours) 
       maxHours = avg;
   }
-
-  xMax_ = qCeil(maxHours) + 1;
+  if(xMax_ > 5)
+    xMax_ = qCeil(maxHours) + 1;
 
   QBarSet *weekSet = new QBarSet("每日时长");
   weekSet->setColor(QColor("#0984E3"));
@@ -188,8 +189,8 @@ QBarSet* RecordChart::monthChartLoad(QChart *monthChart, QBarCategoryAxis *axisY
     if (avg > maxHours) 
       maxHours = avg;
   }
-
-  xMax_ = qCeil(maxHours) + 1;
+  if(xMax_ > 5)
+    xMax_ = qCeil(maxHours) + 1;
 
   QBarSet *monthSet = new QBarSet("月均时长");
   monthSet->setColor(QColor("#0652DD"));
