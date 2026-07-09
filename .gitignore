@@ -3,5 +3,5 @@ build/
 .qtcreator
 .claude/
 claude.md
-record.md
+record.txt
 CMakePresets.json

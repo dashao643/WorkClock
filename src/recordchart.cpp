@@ -41,6 +41,7 @@ void RecordChart::chartLoad(QSqlQuery *query, QList<QChart*> &chartList)
     axisX->setTickInterval(1);
     axisX->setLabelFormat("%d");
     axisX->setTitleText("时长（小时）");
+    axisX->setTitleVisible(false);
 
     chartList[i]->addAxis(axisX, Qt::AlignBottom);
     chartList[i]->addAxis(axisY, Qt::AlignLeft);
@@ -93,7 +94,7 @@ QBarSet* RecordChart::dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY)
   // QBarSet: 第 i 个值 → QBarCategoryAxis 的第 i 个 category
   // 一个 QBarSet 只能有一种颜色
   QBarSet *dailySet = new QBarSet("每日时长");
-
+  // dailySet->set
   dailySet->setColor(QColor("#3498DB"));
 
   for (int i = 0; i < dailyHours.size(); i++) {
@@ -105,6 +106,7 @@ QBarSet* RecordChart::dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY)
 
   int totalHeight = dateStrings.size() * barHeight_ + reserve_;
   dayChart->setMinimumHeight(totalHeight);
+
 
   return dailySet;
 }

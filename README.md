@@ -1,6 +1,8 @@
 # Qt时钟工具
 
-<img src="./screenshot/interface.png" width="50%" />
+<img src="./screenshot/interface_time.png" width="250" />
+<img src="./screenshot/interface_record.png" width="250" />
+<img src="./screenshot/interface_chart.png" width="250" />
 
 ## 功能介绍
 一个基于Qt6开发的桌面时钟工具，通过手动的开启和关闭一个正向的计时器，
@@ -58,6 +60,7 @@
 # 配置 CMakePresets.json 中 qt6 安装路径后
 cmake --preset release					# 创建build目录并配置项目
 cmake --build build/release -j 16		# 并行构建项目
+cd build/release && ./SerialTool.exe	# 执行exe文件
 ```
 
 ##### 待更新：
