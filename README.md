@@ -1,7 +1,6 @@
 # Qt时钟工具
 
 <img src="./screenshot/interface_time.png" width="250" />
-<img src="./screenshot/interface_record.png" width="250" />
 <img src="./screenshot/interface_chart.png" width="250" />
 
 ## 功能介绍
