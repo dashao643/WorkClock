@@ -13,25 +13,25 @@ constexpr int CHART_CNT = 3;
 
 class RecordChart : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit RecordChart(QObject *parent = nullptr);
+    explicit RecordChart(QObject *parent = nullptr);
 
-  void chartLoad(QSqlQuery *query, QList<QChart*> &chartList);
+    void chartLoad(QSqlQuery *query, QList<QChart*> &chartList);
 
 signals:
-  void sgn_messageBox(QString info);
-  
+    void sgn_messageBox(QString info);
+    
 private:
-  QSqlQuery *query_;
-  
-  int xMax_ = 5;
-  int barHeight_ = 30;
-  int reserve_ = 120;
+    QSqlQuery *query_;
+    
+    int xMax_ = 5;
+    int barHeight_ = 30;
+    int reserve_ = 120;
 
-  QBarSet* dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY);
-  QBarSet* weekChartLoad(QChart *weekChart, QBarCategoryAxis *axisY);
-  QBarSet* monthChartLoad(QChart *monthChart, QBarCategoryAxis *axisY);
+    QBarSet* dayChartLoad(QChart *dayChart, QBarCategoryAxis *axisY);
+    QBarSet* weekChartLoad(QChart *weekChart, QBarCategoryAxis *axisY);
+    QBarSet* monthChartLoad(QChart *monthChart, QBarCategoryAxis *axisY);
 };
 
 #endif // RECORDCHART_H

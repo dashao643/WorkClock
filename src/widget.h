@@ -20,56 +20,56 @@ QT_END_NAMESPACE
 
 class Widget : public QWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  const QString ICON_CLOCK1 = ":/picture/clock1.ico";
-  const QString FILE_NAME = "EverydayRecord.txt";
+    const QString ICON_CLOCK1 = ":/picture/clock1.ico";
+    const QString FILE_NAME = "EverydayRecord.txt";
 
-  AppConfig *appConfig_;
-  RecordModel *recordModel_;
-  RecordChart *recordChart_;
+    AppConfig *appConfig_;
+    RecordModel *recordModel_;
+    RecordChart *recordChart_;
 
-  QSqlQuery *query_;
-  QSqlDatabase db_;
-  QTimer *timer_ = nullptr;
-  QString dateStr_ = "";
-  int curTimerSeconds_ = 0;
-  int totalSeconds_ = 0;
-  bool isTiming_ = false;
+    QSqlQuery *query_;
+    QSqlDatabase db_;
+    QTimer *timer_ = nullptr;
+    QString dateStr_ = "";
+    int curTimerSeconds_ = 0;
+    int totalSeconds_ = 0;
+    bool isTiming_ = false;
 
-  Config_t config_;
+    Config_t config_;
 
-  Widget(QWidget *parent = nullptr);
-  ~Widget();
+    Widget(QWidget *parent = nullptr);
+    ~Widget();
 
-  void sqliteInit();
-  void uiTimeShowInit();
-  void uiRecordInit();
-  void uiChartInit();
-  void uiToolInit();
+    void sqliteInit();
+    void uiTimeShowInit();
+    void uiRecordInit();
+    void uiChartInit();
+    void uiToolInit();
 
 private slots:
-  void on_btn_startStop_clicked();
-  void on_btn_save_clicked();
-  void on_btn_change_clicked();
-  void on_btn_reset_clicked();
-  void on_btn_target_clicked();
-  void on_btn_toUpper_clicked();
-  void on_btn_toLower_clicked();
-  void on_btn_path_clicked();
+    void on_btn_startStop_clicked();
+    void on_btn_save_clicked();
+    void on_btn_change_clicked();
+    void on_btn_reset_clicked();
+    void on_btn_target_clicked();
+    void on_btn_toUpper_clicked();
+    void on_btn_toLower_clicked();
+    void on_btn_path_clicked();
 
-  void do_timerTimeout();
+    void do_timerTimeout();
 
 private:
-  void updateTimerState();
-  void saveTimerRecord(int seconds);
-  void fillMissingDays();
-  void updateLastSave();
-  void saveTempFile();
+    void updateTimerState();
+    void saveTimerRecord(int seconds);
+    void fillMissingDays();
+    void updateLastSave();
+    void saveTempFile();
 
-  Ui::Widget *ui;
+    Ui::Widget *ui;
 protected:
-  void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 };
 #endif // WIDGET_H
