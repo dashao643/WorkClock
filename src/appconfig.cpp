@@ -23,12 +23,16 @@ Config_t AppConfig::readConfig()
     if(targetCnt > 3) targetCnt = 3;
     /// 根据数量读取名称
     for(int i = 0; i < targetCnt; i++){
-        QString name = setting_.value(QString("target/name%1").arg(i),
-                                                                            QString("目标%1").arg(i+1)).toString();
+        QString name = setting_.value(QString("target/name%1").arg(i), QString("目标%1").arg(i+1)).toString();
         config.targetNameList.push_back(name);
     }
     QString timeStr = setting_.value("saveRecord/lastTime", "").toString();
     config.lastSaveTime = QTime::fromString(timeStr);
+
+    config.isDirectExit = setting_.value("settings/isDirectExit", false).toBool();
+
+    QString showHideHotkeyStr = setting_.value("settings/showHideHotkey", "").toString();
+    config.showHideHotkey = QKeySequence::fromString(showHideHotkeyStr);
 
     return config;
 }
@@ -48,4 +52,9 @@ void AppConfig::saveConfig(const Config_t &config)
 
     QString timeStr = config.lastSaveTime.toString();
     setting_.setValue("saveRecord/lastTime", timeStr);
+
+    setting_.setValue("settings/isDirectExit", config.isDirectExit);
+
+    QString showHideHotkeyStr = config.showHideHotkey.toString();
+    setting_.setValue("settings/showHideHotkey", showHideHotkeyStr);
 }

@@ -17,7 +17,7 @@ public:
     int getChangeMinutes();
 
 private slots:
-    void on_btn_OK_clicked();
+    void on_btn_ok_clicked();
     void on_btn_cancel_clicked();
 
 private:

@@ -6,8 +6,8 @@ TimeDialog::TimeDialog(QWidget *parent)
     , ui(new Ui::TimeDialog) 
 {
     ui->setupUi(this);
+    this->setWindowTitle("settings");
 
-    this->setWindowTitle("对话框");
     ui->spinBox->setValue(1);
 }
 
@@ -16,7 +16,7 @@ int TimeDialog::getChangeMinutes()
     return ui->spinBox->value();
 }
 
-void TimeDialog::on_btn_OK_clicked()
+void TimeDialog::on_btn_ok_clicked()
 {
     this->accept();
 }

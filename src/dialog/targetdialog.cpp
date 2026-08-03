@@ -13,6 +13,7 @@ TargetDialog::TargetDialog(const QStringList &targetList, QSqlQuery *query, QWid
     , ui(new Ui::TargetDialog)
 {
     ui->setupUi(this);
+    this->setWindowTitle("target");
 
     query_ = query;
     todayStr_ = QDate::currentDate().toString("yyyy-MM-dd");

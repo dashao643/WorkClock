@@ -241,7 +241,7 @@ void Widget::on_btn_change_clicked()
 
 void Widget::on_btn_reset_clicked()
 {
-    auto res = QMessageBox::question(this, "询问",
+    auto res = QMessageBox::question(this, "question",
         "确定要重置本次计时吗？",
         QMessageBox::Ok | QMessageBox::Cancel,
         QMessageBox::Cancel
