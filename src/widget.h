@@ -4,11 +4,13 @@
 #include "appconfig.h"
 #include "recordmodel.h"
 #include "recordchart.h"
+#include "windows_manager.h"
 
 #include <QWidget>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTimer>
+#include <QSystemTrayIcon>
 
 const QString DATABASE_FILE_NAME = "workClock.db";
 
@@ -23,12 +25,17 @@ class Widget : public QWidget
     Q_OBJECT
 
 public:
+    Widget(QWidget *parent = nullptr);
+    ~Widget();
+
+private:
     const QString ICON_CLOCK1 = ":/picture/clock1.ico";
     const QString FILE_NAME = "EverydayRecord.txt";
 
-    AppConfig *appConfig_;
-    RecordModel *recordModel_;
-    RecordChart *recordChart_;
+    AppConfig *appConfig_ = nullptr;
+    RecordModel *recordModel_ = nullptr;
+    RecordChart *recordChart_ = nullptr;
+    WindowsManager *windowsManager_ = nullptr;
 
     QSqlQuery *query_;
     QSqlDatabase db_;
@@ -37,17 +44,20 @@ public:
     int curTimerSeconds_ = 0;
     int totalSeconds_ = 0;
     bool isTiming_ = false;
-
     Config_t config_;
-
-    Widget(QWidget *parent = nullptr);
-    ~Widget();
+    Ui::Widget *ui;
 
     void sqliteInit();
     void uiTimeShowInit();
     void uiRecordInit();
     void uiChartInit();
     void uiToolInit();
+
+    void updateTimerState();
+    void saveTimerRecord(int seconds);
+    void fillMissingDays();
+    void updateLastSave();
+    void saveTempFile();
 
 private slots:
     void on_btn_startStop_clicked();
@@ -60,16 +70,11 @@ private slots:
     void on_btn_path_clicked();
 
     void do_timerTimeout();
-
-private:
-    void updateTimerState();
-    void saveTimerRecord(int seconds);
-    void fillMissingDays();
-    void updateLastSave();
-    void saveTempFile();
-
-    Ui::Widget *ui;
+    void do_showHideUi();
+    
 protected:
     void closeEvent(QCloseEvent *event) override;
 };
 #endif // WIDGET_H
+
+

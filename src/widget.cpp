@@ -20,11 +20,11 @@ Widget::Widget(QWidget *parent)
 {
 	ui->setupUi(this);
 	this->resize(390, 480);
-	// this->resize(800, 800);
 	
-	qDebug()<<"当前窗口大小："<<this->width()<<" "<<this->height();
+	qDebug() << "当前窗口大小：" << this->width() << " "<< this->height();
 	this->setWindowTitle(QString("工作时钟-v%1").arg(APP_VERSION));
 	this->setWindowIcon(QIcon(ICON_CLOCK1));
+    
 	ui->tabWidget->setCurrentIndex(TabPage_e::ClockPage);
 
 	appConfig_ = new AppConfig(this);
@@ -35,6 +35,8 @@ Widget::Widget(QWidget *parent)
     connect(recordChart_, &RecordChart::sgn_messageBox, this, [=](QString info){
         QMessageBox::critical(this, "警告", info);
     });
+    windowsManager_ = new WindowsManager;
+    connect(windowsManager_, &WindowsManager::sgn_hotKeyTrigger, this, &Widget::do_showHideUi);
 
 	timer_ = new QTimer(this);
 	timer_->setInterval(1000);
@@ -269,6 +271,16 @@ void Widget::do_timerTimeout()
     ui->label_clock->setText(currentTime.toString("HH:mm:ss"));
 }
 
+void Widget::do_showHideUi()
+{
+    if(this->isHidden()) {
+        this->showNormal();
+        this->activateWindow();
+    } else {
+        this->hide();
+    }
+}
+
 void Widget::updateTimerState()
 {
     if(isTiming_){
@@ -382,19 +394,6 @@ void Widget::saveTempFile()
     file.write(string.toUtf8());
     file.close();
 }
-
-// void Widget::on_btn_clicked()
-// {
-//   qDebug()<<"点击测试";
-//   QScrollBar *scrollBar = ui->scrollArea->verticalScrollBar();
-//   int max = scrollBar->maximum();
-//   qDebug()<< "max=" << max;
-//   qDebug()<< ui->scrollArea->verticalScrollBar()->sliderPosition();
-//   qDebug()<< ui->scrollArea->verticalScrollBar()->value();
-
-//   scrollBar->setValue(max);
-//   // ui->scrollArea->setVerticalScrollBar(scrollBar);
-// }
 
 void Widget::closeEvent(QCloseEvent *event)
 {
