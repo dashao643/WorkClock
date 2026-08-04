@@ -19,6 +19,7 @@ typedef struct {
     QTime lastSaveTime;             // 最近一次保存过的时间
     bool isDirectExit;              // 是否直接退出
     QKeySequence showHideHotkey;    // 显示/隐藏快捷键
+    bool isFirstTray;               // 是否是第一次最小化
 } Config_t;
 
 #endif // DATASTRUCTURE_H

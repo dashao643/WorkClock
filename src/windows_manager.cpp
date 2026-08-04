@@ -10,9 +10,9 @@ WindowsManager::WindowsManager()
 WindowsManager::~WindowsManager() = default;
 
 // 注册全局快捷键
-void WindowsManager::registerGlobalHotkey(QKeySequence key, WId wId)
+bool WindowsManager::registerGlobalHotkey(QKeySequence key, WId wId)
 {
-    if (key.isEmpty()) return;
+    if (key.isEmpty()) return false;
 
     HWND hwnd = reinterpret_cast<HWND>(wId);
 
@@ -20,11 +20,7 @@ void WindowsManager::registerGlobalHotkey(QKeySequence key, WId wId)
     WORD vk = qtKeyToVk(combo.key());
     WORD mods = qtModsToWin(combo.keyboardModifiers());
 
-    if (RegisterHotKey(hwnd, hotkeyId_, mods, vk)) {
-        qDebug() << key.toString() << "注册成功";
-    } else {
-        qDebug() << key.toString() << "注册失败";
-    }
+    return (RegisterHotKey(hwnd, hotkeyId_, mods, vk));
 }
 
 void WindowsManager::unregisterGlobalHotkey(WId wId)

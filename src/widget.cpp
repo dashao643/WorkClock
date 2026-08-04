@@ -248,7 +248,9 @@ void Widget::trayInit()
 
 void Widget::hotkeyInit()
 {
+    if(config_.showHideHotkey.isEmpty()) return;
     
+    windowsManager_->registerGlobalHotkey(config_.showHideHotkey, this->winId());
 }
 
 void Widget::on_btn_startStop_clicked()
@@ -286,7 +288,20 @@ void Widget::on_btn_change_clicked()
         saveTimerRecord(changeSeconds);
 
         config_.isDirectExit = dialog.getIsDirectExit();
-        config_.showHideHotkey = dialog.getShowHideHotkey();
+        QKeySequence curKey = dialog.getShowHideHotkey();
+        if(curKey != config_.showHideHotkey) {
+            qInfo() << "修改了快捷键: " << config_.showHideHotkey.toString() \
+            << "-> " << curKey.toString();
+
+            config_.showHideHotkey = curKey;
+
+            windowsManager_->unregisterGlobalHotkey(this->winId());
+
+            if(!config_.showHideHotkey.isEmpty())
+                if(!windowsManager_->registerGlobalHotkey(curKey, this->winId()))
+                    QMessageBox::information(this, "提示", curKey.toString() + 
+                    " 注册失败,\n请检查是否被其他程序占用");
+        }
     }
 }
 
@@ -499,6 +514,12 @@ void Widget::closeEvent(QCloseEvent *event)
     if(!config_.isDirectExit) {
         this->hide();
         event->ignore();
+
+        // 第一次最小化, 弹窗提示
+        if(config_.isFirstTray) {
+            config_.isFirstTray = false;
+            trayIcon_->showMessage("提示", "WorkClock已最小化托盘", QSystemTrayIcon::Information, 1000);
+        }
         return;
     }
 
@@ -516,6 +537,13 @@ void Widget::closeEvent(QCloseEvent *event)
     event->accept();
     appConfig_->saveConfig(config_);
     saveTempFile();
+}
+
+bool Widget::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+{
+    if(windowsManager_->eventProcess(eventType, message)) return true;
+
+    return QWidget::nativeEvent(eventType, message, result);
 }
 
 void Widget::on_btn_toUpper_clicked()

@@ -11,7 +11,7 @@ class WindowsManager : public QObject
 public:
     WindowsManager();
     ~WindowsManager();
-    void registerGlobalHotkey(QKeySequence key, WId wId);
+    bool registerGlobalHotkey(QKeySequence key, WId wId);
     void unregisterGlobalHotkey(WId wId);
     bool eventProcess(const QByteArray &eventType, void *message);
 

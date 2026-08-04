@@ -81,6 +81,7 @@ private slots:
     
 protected:
     void closeEvent(QCloseEvent *event) override;
+    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 };
 #endif // WIDGET_H
 

@@ -34,6 +34,8 @@ Config_t AppConfig::readConfig()
     QString showHideHotkeyStr = setting_.value("settings/showHideHotkey", "").toString();
     config.showHideHotkey = QKeySequence::fromString(showHideHotkeyStr);
 
+    config.isFirstTray = setting_.value("settings/isFirstTray", true).toBool();
+
     return config;
 }
 
@@ -57,4 +59,6 @@ void AppConfig::saveConfig(const Config_t &config)
 
     QString showHideHotkeyStr = config.showHideHotkey.toString();
     setting_.setValue("settings/showHideHotkey", showHideHotkeyStr);
+
+    setting_.setValue("settings/isFirstTray", config.isFirstTray);
 }
