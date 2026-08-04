@@ -2,7 +2,8 @@
 
 #include <QPushButton>
 
-TMessageBox::TMessageBox(const QString& text, bool discardBtn)
+TMessageBox::TMessageBox(const QString& text, bool discardBtn, QWidget *parent)
+    : QMessageBox(parent)
 {
     setWindowTitle("提示");
     setText(text);

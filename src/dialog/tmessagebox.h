@@ -4,12 +4,11 @@
 #include <QMessageBox>
 #include <QObject>
 
-
 class TMessageBox : public QMessageBox
 {
     Q_OBJECT
 public:
-    TMessageBox(const QString& text, bool discardBtn);
+    TMessageBox(const QString& text, bool discardBtn, QWidget *parent = nullptr);
 
     QPushButton *okButton() const;
     QPushButton *cancelButton() const;
