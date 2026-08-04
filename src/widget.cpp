@@ -214,33 +214,41 @@ void Widget::trayInit()
     // 托盘右键菜单
     QMenu *trayMenu = new QMenu(this);
 
-    // 显示主窗口
-    trayMenu->addAction("显示主窗口", this, [=]() {
-        this->showNormal();
-        this->activateWindow();
+    startStop_ = new QAction(this);
+    startStop_->setText("开始");
+    connect(startStop_, &QAction::triggered, this, &Widget::on_btn_startStop_clicked);
+
+    trayMenu->addAction(startStop_);
+    // trayMenu->addAction()
+    // trayMenu->addAction("开始/暂停", this, [=]() {
+    //     on_btn_startStop_clicked();
+    // });
+    trayMenu->addAction("保存", this, [=]() {
+        on_btn_save_clicked();
     });
 
     // 先保存配置再退出
     trayMenu->addAction("退出", this, [=]() {
         aboutToExit();
     });
-
+    // trayMenu->action()
     // 托盘图标
-    QSystemTrayIcon *trayIcon = new QSystemTrayIcon(this);
-    trayIcon->setIcon(QIcon(":/picture/clock1_white.ico"));
-    trayIcon->setToolTip("WorkClock");
-    trayIcon->setContextMenu(trayMenu);
-    connect(trayIcon, &QSystemTrayIcon::activated, this, [=](QSystemTrayIcon::ActivationReason reason) {
+    trayIcon_ = new QSystemTrayIcon(this);
+    trayIcon_->setIcon(QIcon(":/picture/clock1_white.ico"));
+    trayIcon_->setToolTip("WorkClock");
+    trayIcon_->setContextMenu(trayMenu);
+    connect(trayIcon_, &QSystemTrayIcon::activated, this, [=](QSystemTrayIcon::ActivationReason reason) {
         if (reason == QSystemTrayIcon::Trigger) {
             this->showNormal();
             this->activateWindow();
         }
     });
-    trayIcon->show();
+    trayIcon_->show();
 }
 
 void Widget::hotkeyInit()
 {
+    
 }
 
 void Widget::on_btn_startStop_clicked()
@@ -248,13 +256,13 @@ void Widget::on_btn_startStop_clicked()
     isTiming_ = !isTiming_;
     updateTimerState();
 
-    if(!isTiming_){
+    if(!isTiming_)
         updateLastSave();
-    }
 }
 
 void Widget::on_btn_save_clicked()
 {
+    if(curTimerSeconds_ == 0) return;
     saveTimerRecord(curTimerSeconds_);
 
     curTimerSeconds_ = 0;
@@ -330,11 +338,19 @@ void Widget::updateTimerState()
         timer_->start();
         ui->btn_startStop->setProperty("action", "start");
         ui->label_clock->setProperty("action", "start");
+        if(trayIcon_)
+            trayIcon_->setIcon(QIcon(":/picture/clock1.ico"));
+        if(startStop_)
+            startStop_->setText("暂停");
     }
     else{
         timer_->stop();
         ui->btn_startStop->setProperty("action", "stop");
         ui->label_clock->setProperty("action", "stop");
+        if(trayIcon_)
+            trayIcon_->setIcon(QIcon(":/picture/clock1_white.ico"));
+        if(startStop_)
+            startStop_->setText("开始");
     }
     ui->btn_startStop->style()->unpolish(ui->btn_startStop);
     ui->btn_startStop->style()->polish(ui->btn_startStop);

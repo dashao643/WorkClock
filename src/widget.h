@@ -10,6 +10,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTimer>
+#include <QSystemTrayIcon>
 
 const QString DATABASE_FILE_NAME = "workClock.db";
 
@@ -39,6 +40,8 @@ private:
     QSqlQuery *query_;
     QSqlDatabase db_;
     QTimer *timer_ = nullptr;
+    QSystemTrayIcon *trayIcon_ = nullptr;
+    QAction *startStop_ = nullptr;
     QString dateStr_ = "";
     int curTimerSeconds_ = 0;
     int totalSeconds_ = 0;

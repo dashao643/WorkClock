@@ -13,6 +13,8 @@ TimeDialog::TimeDialog(QWidget *parent, bool isDirectExit, QKeySequence showHide
     ui->rdBtn_exit->setChecked(isDirectExit);
     ui->rdBtn_tray->setChecked(!isDirectExit);
 
+    ui->keySequenceEdit->setClearButtonEnabled(true);
+    ui->keySequenceEdit->setMaximumSequenceLength(1);
     ui->keySequenceEdit->setKeySequence(showHideHotkey);
 }
 
