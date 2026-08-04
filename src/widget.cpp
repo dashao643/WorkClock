@@ -13,6 +13,8 @@
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
 #include <QScrollBar>
+#include <QMenu>
+#include <QSystemTrayIcon>
 
 Widget::Widget(QWidget *parent)
 	: QWidget(parent)
@@ -49,6 +51,8 @@ Widget::Widget(QWidget *parent)
 	uiRecordInit();
 	uiChartInit();
 	uiToolInit();
+    trayInit();
+ 	hotkeyInit();
 
 	ui->btn_startStop->setProperty("action", "stop");
 	ui->label_clock->setProperty("action", "stop");
@@ -205,6 +209,40 @@ void Widget::uiToolInit()
     ui->textEdit->setText(QString::fromUtf8(file.readAll()));
 }
 
+void Widget::trayInit()
+{
+    // 托盘右键菜单
+    QMenu *trayMenu = new QMenu(this);
+
+    // 显示主窗口
+    trayMenu->addAction("显示主窗口", this, [=]() {
+        this->showNormal();
+        this->activateWindow();
+    });
+
+    // 先保存配置再退出
+    trayMenu->addAction("退出", this, [=]() {
+        aboutToExit();
+    });
+
+    // 托盘图标
+    QSystemTrayIcon *trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setIcon(QIcon(":/picture/clock1_white.ico"));
+    trayIcon->setToolTip("WorkClock");
+    trayIcon->setContextMenu(trayMenu);
+    connect(trayIcon, &QSystemTrayIcon::activated, this, [=](QSystemTrayIcon::ActivationReason reason) {
+        if (reason == QSystemTrayIcon::Trigger) {
+            this->showNormal();
+            this->activateWindow();
+        }
+    });
+    trayIcon->show();
+}
+
+void Widget::hotkeyInit()
+{
+}
+
 void Widget::on_btn_startStop_clicked()
 {
     isTiming_ = !isTiming_;
@@ -231,11 +269,16 @@ void Widget::on_btn_save_clicked()
 
 void Widget::on_btn_change_clicked()
 {
-    TimeDialog dialog(this);
+    TimeDialog dialog(this, config_.isDirectExit, config_.showHideHotkey);
+
     int res = dialog.exec();
+
     if (res == QDialog::Accepted) {
         int changeSeconds = dialog.getChangeMinutes() * 60;
         saveTimerRecord(changeSeconds);
+
+        config_.isDirectExit = dialog.getIsDirectExit();
+        config_.showHideHotkey = dialog.getShowHideHotkey();
     }
 }
 
@@ -395,31 +438,66 @@ void Widget::saveTempFile()
     file.close();
 }
 
+// 弹窗确认：有未保存时长时返回按钮角色，无未保存时长直接返回 -1
+int Widget::confirmExit()
+{
+    bool hasUnsavedTime = (curTimerSeconds_ > 0) || isTiming_;
+    if (!hasUnsavedTime)
+        return -1;
+
+    TMessageBox msg("有未保存的时长，是否保存？", true, this);
+    msg.exec();
+
+    QAbstractButton *clicked = msg.clickedButton();
+    if (clicked == msg.okButton())
+        return QMessageBox::AcceptRole;
+    if (clicked == msg.discardButton())
+        return QMessageBox::DestructiveRole;
+    // 取消按钮
+    return QMessageBox::RejectRole; 
+}
+
+// 托盘关闭调用
+void Widget::aboutToExit()
+{
+    int role = confirmExit();
+
+    if (role == QMessageBox::AcceptRole)
+        saveTimerRecord(curTimerSeconds_);
+
+    if (role == QMessageBox::RejectRole)
+        return;
+
+    appConfig_->saveConfig(config_);
+    saveTempFile();
+    exitByTary_ = true;
+    qApp->quit();
+}
+
 void Widget::closeEvent(QCloseEvent *event)
 {
-    //判断是否有未保存的本次计时
-    bool hasUnsavedTime = (curTimerSeconds_ > 0) || isTiming_;
-    if (!hasUnsavedTime) {
-        event->accept();
-        appConfig_->saveConfig(config_);
-        saveTempFile();
-        return;
-    }
+    // 如果主窗口还存在, 通过托盘退出, 跳过后续判断
+    if(exitByTary_) return;
 
-    TMessageBox msg("有未保存的时长，是否保存？", true);
-    msg.exec();
-    if (msg.clickedButton() == msg.okButton()) {
-        saveTimerRecord(curTimerSeconds_);
-        event->accept();
-    }
-    else if (msg.clickedButton() == msg.discardButton()) {
-        event->accept();
-    }
-    else if (msg.clickedButton() == msg.cancelButton()) {
+    // 隐藏窗口
+    if(!config_.isDirectExit) {
+        this->hide();
         event->ignore();
         return;
     }
 
+    // 判断退出
+    int role = confirmExit();
+
+    if (role == QMessageBox::AcceptRole)
+        saveTimerRecord(curTimerSeconds_);
+
+    if (role == QMessageBox::RejectRole) {
+        event->ignore();
+        return;
+    }
+
+    event->accept();
     appConfig_->saveConfig(config_);
     saveTempFile();
 }

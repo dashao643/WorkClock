@@ -26,5 +26,6 @@
         <file>picture/target.png</file>
         <file>picture/target_n.png</file>
         <file>style.qss</file>
+        <file>picture/clock1_white.ico</file>
     </qresource>
 </RCC>
