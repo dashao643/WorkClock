@@ -38,6 +38,24 @@ int main(int argc, char *argv[])
 
     Widget w;
     w.show();
-    
+
+    QObject::connect(&server, &QLocalServer::newConnection, [&server, &w]() {
+        QLocalSocket *clientSocket = server.nextPendingConnection();
+        if (!clientSocket) return;
+
+        QObject::connect(clientSocket, &QLocalSocket::readyRead, [clientSocket, &w]() {
+            QByteArray data = clientSocket->readAll();
+            qInfo() << "收到消息:" << data;
+
+            if (data.trimmed() == "show") {
+                w.raise();
+                w.showNormal();
+                w.activateWindow();
+            }
+        });
+
+        QObject::connect(clientSocket, &QLocalSocket::disconnected, clientSocket, &QLocalSocket::deleteLater);
+    });
+
     return a.exec();
 }
