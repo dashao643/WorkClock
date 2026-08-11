@@ -12,15 +12,10 @@ RecordModel::RecordModel(QObject *parent)
     clockInIcon_ = QIcon(":/picture/target.png");
 }
 
-void RecordModel::setTargetNames(const QStringList &names)
-{
-    targetNames_ = names;
-}
-
+// QModelIndex: 定位表格中的某格
 QVariant RecordModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
-        return QVariant();
+    if (!index.isValid()) return QVariant();
 
     int col = index.column();
 
@@ -66,48 +61,36 @@ QVariant RecordModel::headerData(int section, Qt::Orientation orientation, int r
     return QSqlQueryModel::headerData(section, orientation, role);
 }
 
+void RecordModel::setTargetNames(const QStringList &nameList)
+{
+    targetNames_ = nameList;
+}
+
 QString RecordModel::formatSeconds(int totalSeconds)
 {
     QTime time = QTime(0, 0, 0).addSecs(totalSeconds);
     return QString("%1小时%2分钟").arg(time.hour()).arg(time.minute());
 }
 
+
+IconDelegate::IconDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
+{
+}
+
 void IconDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
 {
-    // 第1步: 画选中/悬停的背景色
-    if (option.state & QStyle::State_Selected) {
-        // 单元格被选中 → 蓝色高亮背景
-        painter->fillRect(option.rect, option.palette.highlight());
-    } else if (option.state & QStyle::State_MouseOver) {
-        // 鼠标悬停 → 浅色背景
-        painter->fillRect(option.rect, option.palette.window().color().lighter(110));
-    }
-
-    // 第2步: 从模型取图标
-    QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-    if (!icon.isNull()) {
-        // 图标尺寸: 优先用视图设定的 iconSize，否则默认 16x16
-        QSize iconSize = option.decorationSize;
-        if (iconSize.isEmpty())
-            iconSize = QSize(16, 16);
-
-        // 计算让图标在单元格正中间的位置
-        int x = option.rect.center().x() - iconSize.width() / 2;
-        int y = option.rect.center().y() - iconSize.height() / 2;
-
-        // 根据选中状态选择图标的绘制模式
-        QIcon::Mode mode = (option.state & QStyle::State_Selected)
-                                                            ? QIcon::Selected
-                                                            : QIcon::Normal;
-
-        icon.paint(painter, x, y, iconSize.width(), iconSize.height(),
-                                    Qt::AlignCenter, mode);
-    }
-
-    // 第3步: 键盘焦点指示（虚线框）
-    if (option.state & QStyle::State_HasFocus) {
-        QApplication::style()->drawPrimitive(
-            QStyle::PE_FrameFocusRect, &option, painter);
-    }
+    QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
+    if (icon.isNull()) return;
+    
+    QSize iconSize = option.decorationSize;
+    if (iconSize.isEmpty()) 
+        iconSize = QSize(24, 24);
+    
+    QRect center = option.rect;
+    int x = center.x() + (center.width() - iconSize.width()) / 2;
+    int y = center.y() + (center.height() - iconSize.height()) / 2;
+    
+    icon.paint(painter, x, y, iconSize.width(), iconSize.height());
 }

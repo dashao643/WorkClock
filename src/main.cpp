@@ -6,7 +6,7 @@
 #include <QLocalSocket>
 #include <QLocalServer>
 
-const QString SERVER_NAME = "dashao-work-clock";
+const QString SERVER_NAME = "dashao-work-clock-1.3.3";
 constexpr int BLOCK_WAIT_MS = 100;
 
 int main(int argc, char *argv[])
