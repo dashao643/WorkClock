@@ -117,6 +117,9 @@
           <height>30</height>
          </size>
         </property>
+        <property name="maximumSequenceLength">
+         <longLong>1</longLong>
+        </property>
        </widget>
       </item>
      </layout>
