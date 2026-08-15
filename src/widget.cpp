@@ -219,10 +219,7 @@ void Widget::trayInit()
     connect(startStop_, &QAction::triggered, this, &Widget::on_btn_startStop_clicked);
 
     trayMenu->addAction(startStop_);
-    // trayMenu->addAction()
-    // trayMenu->addAction("开始/暂停", this, [=]() {
-    //     on_btn_startStop_clicked();
-    // });
+
     trayMenu->addAction("保存", this, [=]() {
         on_btn_save_clicked();
     });
@@ -231,7 +228,7 @@ void Widget::trayInit()
     trayMenu->addAction("退出", this, [=]() {
         aboutToExit();
     });
-    // trayMenu->action()
+
     // 托盘图标
     trayIcon_ = new QSystemTrayIcon(this);
     trayIcon_->setIcon(QIcon(":/picture/clock1_white.ico"));
@@ -339,6 +336,11 @@ void Widget::do_timerTimeout()
 
 void Widget::do_showHideUi()
 {
+    if(this->isMinimized()) {
+        this->showNormal();
+        this->activateWindow();
+        return;
+    }
     if(this->isHidden()) {
         this->showNormal();
         this->activateWindow();
