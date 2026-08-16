@@ -206,7 +206,7 @@ void Widget::uiToolInit()
         return;
     }
 
-    ui->textEdit->setText(QString::fromUtf8(file.readAll()));
+    ui->plainTextEdit->setPlainText(QString::fromUtf8(file.readAll()));
 }
 
 void Widget::trayInit()
@@ -460,7 +460,7 @@ void Widget::updateLastSave()
 
 void Widget::saveTempFile()
 {
-    QString string = ui->textEdit->toPlainText();
+    QString string = ui->plainTextEdit->toPlainText();
     QFile file;
     file.setFileName(QDir::currentPath() + "/temp.txt");
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text)){
