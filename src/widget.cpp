@@ -336,17 +336,11 @@ void Widget::do_timerTimeout()
 
 void Widget::do_showHideUi()
 {
-    if(this->isMinimized()) {
+    if(!this->isActiveWindow()) {
         this->showNormal();
         this->activateWindow();
-        return;
-    }
-    if(this->isHidden()) {
-        this->showNormal();
-        this->activateWindow();
-    } else {
+    } else 
         this->hide();
-    }
 }
 
 void Widget::updateTimerState()
